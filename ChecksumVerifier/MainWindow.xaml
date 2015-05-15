@@ -1,0 +1,65 @@
+﻿<Window x:Class="ChecksumVerifier.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        Title="Checksum Verifier Utility" Height="296" Width="623" MinHeight="296" MinWidth="623">
+    <Grid>
+        <Grid.Background>
+            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}"/>
+        </Grid.Background>
+        <TabControl Margin="10,22,10,10">
+            <TabItem x:Name="tabSF" Header="Single File">
+                <Grid Background="#FFE5E5E5">
+                    <Label x:Name="SF_lblHashLabel" Content="Checksum: " HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="SF_lblFileLabel" Content="File to Compare: " HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="SF_lblfileSize" Content="fileSize" Margin="115,61,308,0" VerticalAlignment="Top"/>
+                    <Label x:Name="SF_lblFileHashLabel" Content="File Checksum: " HorizontalAlignment="Left" Margin="10,89,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="SF_lblResult" Content="result" Margin="115,0,10,15" VerticalAlignment="Bottom" HorizontalContentAlignment="Center"/>
+                    <TextBox x:Name="SF_txtUserHash" Margin="115,14,10,0" TextWrapping="Wrap" Text="" Height="20" VerticalAlignment="Top" TextChanged="SF_txtUserHash_TextChanged"/>
+                    <TextBox x:Name="SF_txtFilePath" Margin="115,39,90,0" TextWrapping="Wrap" Text="" Height="20" VerticalAlignment="Top"/>
+                    <RichTextBox x:Name="SF_rtbTextFileHash" Margin="115,89,10,46" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Visible" IsReadOnly="True" IsReadOnlyCaretVisible="True" BorderThickness="2,2,1,1">
+                        <FlowDocument>
+                            <FlowDocument.Background>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}"/>
+                            </FlowDocument.Background>
+                            <Paragraph>
+                                <Run Text=""/>
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox>
+                    <Button x:Name="SF_btnBrowse" Content="Browse..." HorizontalAlignment="Right" Margin="0,39,10,0" VerticalAlignment="Top" Width="75" Click="SF_btnBrowse_Click"/>
+                    <Button x:Name="SF_btnCompare" Content="Compare" HorizontalAlignment="Right" Margin="0,64,228,0" VerticalAlignment="Top" Width="75" Click="SF_btnCompare_Click"/>
+                    <ProgressBar x:Name="SF_progressBar" Height="10" Margin="0,0,10,6" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="100"/>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="tabMF" Header="Multiple Files">
+                <Grid Background="#FFE5E5E5">
+                    <Label Content="Label" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <TextBox HorizontalAlignment="Left" Height="23" Margin="53,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+                    <Grid Margin="0,36,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="196*" />
+                            <ColumnDefinition Width="1" />
+                            <ColumnDefinition Width="393*" />
+                        </Grid.ColumnDefinitions>
+                        <ListBox Grid.Column="0" HorizontalAlignment="Left" Height="149" Width="182" Margin="10,10,0,0" VerticalAlignment="Top" />
+                        <GridSplitter ResizeDirection="Columns" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+                        <ListBox Grid.Column="2" HorizontalAlignment="Left" Height="149" Margin="88,10,0,0" VerticalAlignment="Top" Width="286"/>
+                        <Button Content="Button" Grid.Column="2" HorizontalAlignment="Left" Margin="8,10,0,0" VerticalAlignment="Top" Width="75" Height="20"/>
+                        <Button Content="Button" Grid.Column="2" HorizontalAlignment="Left" Margin="8,35,0,0" VerticalAlignment="Top" Width="75" Height="20"/>
+                        <Button Content="Button" Grid.Column="2" HorizontalAlignment="Left" Margin="8,60,0,0" VerticalAlignment="Top" Width="75" Height="20"/>
+                        <ProgressBar Grid.Column="2" HorizontalAlignment="Left" Height="10" Margin="0,149,0,0" VerticalAlignment="Top" Width="83"/>
+                        
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Label x:Name="lblAlgorithm" Content="Algorithm: " HorizontalAlignment="Left" Margin="389,4,0,0" VerticalAlignment="Top" Height="30" Width="70"/>
+        <xctk:CheckComboBox x:Name="ccblistChecksums"
+                            ItemsSource="{Binding Algorithms}"
+                            SelectedItemsOverride="{Binding SelectedAlgorithms}"
+                            Delimiter="+"  
+                            Margin="464,10,10,0" RenderTransformOrigin="0.624,2.6" ItemSelectionChanged="ccblistChecksums_ItemSelectionChanged" Height="24" VerticalAlignment="Top" ToolTip="" />
+
+    </Grid>
+</Window>
