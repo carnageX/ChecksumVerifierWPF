@@ -28,10 +28,16 @@ namespace ChecksumVerifier
         public MainWindow()
         {
             InitializeComponent();
-            this.SF_tbFileHash.TargetUpdated += SF_tbFileHash_TargetUpdated;
+            //this.SF_tbFileHash.TargetUpdated += SF_tbFileHash_TargetUpdated;
+            this.SF_rtbFileHash.TargetUpdated += SF_rtbFileHash_TargetUpdated;
             this.SF_lblResult.TargetUpdated += SF_lblResult_TargetUpdated;
             this.vm = new MainViewModel();
             this.DataContext = vm;
+        }
+
+        void SF_rtbFileHash_TargetUpdated(object sender, DataTransferEventArgs e)
+        {
+            //e.Handled = SF_HandleColorOnText();
         }
 
         void SF_lblResult_TargetUpdated(object sender, DataTransferEventArgs e)
@@ -41,7 +47,7 @@ namespace ChecksumVerifier
 
         private bool SF_HandleResultColor()
         {
-            if(this.SF_lblResult.Content != null && String.IsNullOrEmpty(this.SF_lblResult.Content.ToString()))
+            if(this.SF_lblResult.Content != null && !String.IsNullOrEmpty(this.SF_lblResult.Content.ToString()))
             {
                 string resultString = this.SF_lblResult.Content.ToString();
                 if(resultString.Substring(0, 6).Equals("Error!"))
@@ -57,38 +63,40 @@ namespace ChecksumVerifier
             return false;
         }
 
-        void SF_tbFileHash_TargetUpdated(object sender, DataTransferEventArgs e)
-        {
-            e.Handled = SF_HandleColorOnText();
-        }
+        //void SF_tbFileHash_TargetUpdated(object sender, DataTransferEventArgs e)
+        //{
+        //    e.Handled = SF_HandleColorOnText();
+        //}
 
-        private bool SF_HandleColorOnText()
-        {
-            if (!string.IsNullOrWhiteSpace(this.SF_tbFileHash.Text) && !string.IsNullOrEmpty(this.vm.SF_TxtUserHash))
-            {
-                string[] substrings = this.SF_tbFileHash.Text.Split('\r');
-                this.SF_tbFileHash.Inlines.Clear();
+        //private bool SF_HandleColorOnText()
+        //{
+        //    if (!string.IsNullOrWhiteSpace(this.SF_tbFileHash.Text) && !string.IsNullOrEmpty(this.vm.SF_TxtUserHash))
+        //    {
+        //        string[] substrings = this.SF_tbFileHash.Text.Split('\r');
+        //        this.SF_tbFileHash.Inlines.Clear();
 
-                foreach (var item in substrings)
-                {
-                    if (item.Contains("Valid"))
-                    {
-                        Run runx = new Run(item);
-                        runx.Foreground = Brushes.Green;
-                        this.SF_tbFileHash.Inlines.Add(runx);
-                    }
-                    else
-                    {
-                        Run runx = new Run(item);
-                        runx.Foreground = Brushes.Red;
-                        this.SF_tbFileHash.Inlines.Add(runx);
-                    }
-                    this.SF_tbFileHash.Inlines.Add("\r");
-                }
-                return true;
-            }
-            return false;
-        }
+        //        string[] subStrings = this.SF_rtbFileHash.Document.
+
+        //        foreach (var item in substrings)
+        //        {
+        //            if (item.Contains("Valid"))
+        //            {
+        //                Run runx = new Run(item);
+        //                runx.Foreground = Brushes.Green;
+        //                this.SF_tbFileHash.Inlines.Add(runx);
+        //            }
+        //            else
+        //            {
+        //                Run runx = new Run(item);
+        //                runx.Foreground = Brushes.Red;
+        //                this.SF_tbFileHash.Inlines.Add(runx);
+        //            }
+        //            this.SF_tbFileHash.Inlines.Add("\r");
+        //        }
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
         
 
