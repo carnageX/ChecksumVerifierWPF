@@ -14,17 +14,22 @@ namespace ChecksumVerifier
 {
     class MainViewModel : ViewModelBase
     {
+        #region Class Properties
         public List<string> Algorithms { get; set; }
         public ObservableCollection<string> SelectedAlgorithms { get; set; }
+        #endregion
 
-        #region Single File
+        #region Main Methods
         public MainViewModel()
         {
             this.Algorithms = new List<string>() { "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512", "RIPEMD160", "CRC16", "CRC32" };
             this.SelectedAlgorithms = new ObservableCollection<string>();
             this.SelectedAlgorithms.Add(this.Algorithms[0]);
-        }
+        }//MainViewModel
+        #endregion
 
+        #region Single File
+        #region Single File Properties
         public string SF_TxtUserHash
         {
             get { return this._SF_txtUserHash; }
@@ -117,7 +122,7 @@ namespace ChecksumVerifier
                     RaisePropertyChanged("SF_LblResult");
                 }
             }
-        }
+        }//SF_LblResult
         public string _SF_lblResult;
 
         public int SF_Progress
@@ -131,9 +136,9 @@ namespace ChecksumVerifier
                     RaisePropertyChanged("SF_Progress");
                 }
             }
-        }
+        }//SF_Progress
         public int _SF_progress;
-        //progress bar
+        #endregion
 
         #region SF Browse File
         public ICommand SF_CmdBrowse
@@ -229,6 +234,224 @@ namespace ChecksumVerifier
                 this._SF_lblResult = "Error!  No file to calculate checksum!";
             }//else
         }//SF_Compare
+        #endregion
+        #endregion
+
+        #region Multiple Files
+        #region Multiple Files Properties
+        public string MF_TxtUserHash
+        {
+            get { return _MF_txtUserHash; }
+            set
+            {
+                if(this._MF_txtUserHash != value)
+                {
+                    this._MF_txtUserHash = value;
+                    this.MF_BtnCompareText = "Compare";
+                    RaisePropertyChanged("MF_TxtUserHash");
+                }
+            }
+        }//MF_TxtUserHash
+        public string _MF_txtUserHash;
+
+
+        public string MF_BtnCompareText
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(this._MF_btnCompareText))
+                    this.MF_BtnCompareText = "Generate";
+                return this._MF_btnCompareText;
+            }
+            set
+            {
+                if (this._MF_btnCompareText != value)
+                {
+                    this._MF_btnCompareText = value;
+                    RaisePropertyChanged("MF_BtnCompareText");
+                }
+            }
+        }
+        public string _MF_btnCompareText;
+
+
+        public List<string> MF_FileList
+        {
+            get { return _MF_fileList; }
+            set 
+            { 
+                if(this._MF_fileList != value)
+                {
+                    this._MF_fileList = value;
+                    RaisePropertyChanged("MF_FileList");
+                }
+            }
+        }
+        public List<string> _MF_fileList;
+
+        public List<string> MF_ResultList
+        {
+            get { return _MF_resultList; }
+            set
+            {
+                if (this._MF_resultList != value)
+                {
+                    this._MF_resultList = value;
+                    RaisePropertyChanged("MF_ResultList");
+                }
+            }
+        }
+        public List<string> _MF_resultList;
+
+        public int MF_Progress
+        {
+            get { return _MF_progress; }
+            set
+            {
+                if (_MF_progress != value)
+                {
+                    _MF_progress = value;
+                    RaisePropertyChanged("MF_Progress");
+                }
+            }
+        }//MF_Progress
+        public int _MF_progress;
+
+        public int MF_Progress_Max
+        {
+            get { return _MF_progress_max; }
+            set
+            {
+                if (_MF_progress_max != value)
+                {
+                    _MF_progress_max = value;
+                    RaisePropertyChanged("MF_Progress_Max");
+                }
+            }
+        }//MF_Progress
+        public int _MF_progress_max;
+        #endregion
+
+        #region MF Browse File
+        public ICommand MF_CmdBrowse
+        {
+            get
+            {
+                if (this._MF_cmdBrowse == null)
+                    this._MF_cmdBrowse = new RelayCommand(MF_BrowseFile, MF_CanBrowseFile);
+                return this._MF_cmdBrowse;
+            }
+        }
+        private RelayCommand _MF_cmdBrowse;
+
+        private bool MF_CanBrowseFile()
+        {
+            return true;
+        }
+
+        private void MF_BrowseFile()
+        {
+            OpenFileDialog MF_openDialog = new OpenFileDialog();
+            MF_openDialog.Multiselect = true;
+            if(MF_openDialog.ShowDialog() == true)
+            {
+                this.MF_FileList = MF_openDialog.FileNames.ToList();
+            }
+        }
+        #endregion
+
+        #region MF Export File
+        public ICommand MF_CmdExport
+        {
+            get
+            {
+                if(this._MF_cmdExport == null)
+                    this._MF_cmdExport = new RelayCommand(MF_Export, MF_CanExport);
+                return this._MF_cmdExport;
+            }
+        }
+        private RelayCommand _MF_cmdExport;
+
+        private bool MF_CanExport()
+        {
+            return true;
+        }
+
+        private void MF_Export()
+        {
+            SaveFileDialog MF_exportFile = new SaveFileDialog();
+            MF_exportFile.Filter = "Text File | *.txt";
+            MF_exportFile.Title = "Save generated checksums...";
+            MF_exportFile.FileName = "ChecksumList.txt";
+            if(MF_exportFile.ShowDialog() == true)
+            {
+                using (StreamWriter swExport = new StreamWriter(MF_exportFile.OpenFile()))
+                {
+                    for (int i = 0; i < this.MF_ResultList.Count; i++)
+                    {
+                        swExport.WriteLine(this.MF_ResultList[i].ToString());
+                    }//for
+                }//using
+            }
+        }//MF_Export
+        #endregion
+
+        #region MF Compare Hashes
+        public ICommand MF_CmdCompare
+        {
+            get
+            {
+                if (this._MF_cmdCompare == null)
+                    this._MF_cmdCompare = new RelayCommand(MF_Compare, MF_CanCompare);
+                return this._MF_cmdCompare;
+            }
+        }
+        private RelayCommand _MF_cmdCompare;
+
+        private bool MF_CanCompare()
+        {
+            return true;
+        }
+
+        private void MF_Compare()
+        {
+            this.MF_Progress = 0;
+            this.MF_Progress_Max = this.MF_FileList.Count;
+            this.MF_ResultList = new List<string>();
+
+            if (this.MF_FileList.Count > 0)
+            {
+            //    this.Cursor = Cursors.WaitCursor;
+                for (int i = 0; i < this.MF_FileList.Count; i++)
+                {
+                    List<string> hashList = ChecksumVerifierLogic.GetHash(this.MF_FileList[i], this.SelectedAlgorithms.ToList());
+                    this.MF_Progress += 1;
+                    for (int j = 0; j < hashList.Count; j++)
+                    {
+                        if (!String.IsNullOrWhiteSpace(this.MF_TxtUserHash))
+                        {
+                            if (ChecksumVerifierLogic.CompareHashes(this.MF_TxtUserHash, hashList[j]))
+                            {
+                                this.MF_ResultList.Add(String.Format("{0}: Checkum match! - {1} - {2}", this.MF_FileList[i], this.SelectedAlgorithms[j], hashList[j]));
+                            }//if
+                            else
+                            {
+                                this.MF_ResultList.Add(String.Format("{0}: Checkum mismatch! - {1} - {2}", this.MF_FileList[i], this.SelectedAlgorithms[j], hashList[j]));
+                            }//else
+                        }//if
+                        else
+                        {
+                            this.MF_ResultList.Add(String.Format("{0} - {1} - {2}", this.MF_FileList[i], this.SelectedAlgorithms[j], hashList[j]));
+                        }//else
+                    }//for - j
+                }//for - i
+            //    this.Cursor = Cursors.Default;
+            }//if
+            else
+            {
+                this.MF_ResultList.Add("Error!  No file(s) to calculate checksum!");
+            }//else
+        }
         #endregion
         #endregion
     }

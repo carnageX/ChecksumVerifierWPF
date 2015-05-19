@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:dz="http://schemas.devzest.com/presentation"
         Title="Checksum Verifier Utility" Height="356" Width="623" MinHeight="356" MinWidth="623">
     <Grid>
         <Grid.Background>
@@ -16,7 +17,7 @@
                 <ColumnDefinition Width="300"/>
                 <ColumnDefinition Width="300"/>
             </Grid.ColumnDefinitions>
-            <Label Content="Checksum Verifier" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" FontSize="24" FontStyle="Italic" FontWeight="Bold"/>
+            <Label Content="Checksum Verifier" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,7,0,0" FontSize="24" FontStyle="Italic" FontWeight="Bold"/>
             <WrapPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,0,0">
                 <Label x:Name="lblAlgorithm" Content="Algorithm: " HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <xctk:CheckComboBox x:Name="ccbListChecksums" ItemsSource="{Binding Algorithms}" SelectedItemsOverride="{Binding SelectedAlgorithms}"
@@ -24,7 +25,7 @@
             </WrapPanel>
         </Grid>
         <TabControl Grid.Row="1" Margin="5,0,5,10">
-            <TabItem x:Name="tabSF" Header="Single File">
+            <TabItem x:Name="tabSF" Header="Single File" Background="#FFE5E5E5">
                 <Grid Background="#FFE5E5E5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35*"/>
@@ -39,7 +40,7 @@
                             <ColumnDefinition Width="500*"/>
                         </Grid.ColumnDefinitions>
                         <Label Grid.Column="0" Content="Checksum: " HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Margin="0,3" Width="100"/>
-                        <TextBox Grid.Column="1" Text="{Binding SF_TxtUserHash}" MinWidth="495" Margin="0,4,4,0" Height="24" VerticalAlignment="Top"/>
+                        <TextBox x:Name="SF_txtUserHash" Grid.Column="1" Text="{Binding SF_TxtUserHash}" MinWidth="495" Margin="0,4,4,0" Height="24" VerticalAlignment="Top" TextChanged="SF_txtUserHash_TextChanged"/>
                     </Grid>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
@@ -53,19 +54,18 @@
                     </Grid>
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100*"/>
-                            <ColumnDefinition Width="500*"/>
+                            <ColumnDefinition Width="300*"/>
+                            <ColumnDefinition Width="299*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding SF_LblFileSize}" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                        <Button Content="{Binding SF_BtnCompareText}" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Width="75" Command="{Binding SF_CmdCompare}"/>
+                        <Label Content="{Binding SF_LblFileSize}" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="25" Margin="0" Width="250" />
+                        <Button x:Name="SF_btnCompare" Content="{Binding SF_BtnCompareText}" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Width="76" Command="{Binding SF_CmdCompare}" Height="25" Margin="5,0,129,0"/>
                     </Grid>
                     <Grid Grid.Row="3">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="25" />
                             <RowDefinition Height="100*" />
                         </Grid.RowDefinitions>
-                        <!--<StackPanelOrientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">-->
-                        <Label Grid.Row="0"  Content="File Checksum: " Height="25" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                        <Label Grid.Row="0"  Content="File Checksum(s): " Height="25" VerticalAlignment="Top" HorizontalAlignment="Left" />
                         <RichTextBox x:Name="SF_rtbFileHash" Grid.Row="1" IsReadOnly="True" Background="#FFE5E5E5" Margin="5,5,0,15" BorderThickness="2,2,1,1" IsReadOnlyCaretVisible="True" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto">
                             <FlowDocument>
                                 <Paragraph>
@@ -73,9 +73,6 @@
                                 </Paragraph>
                             </FlowDocument>
                         </RichTextBox>
-                        <!--<TextBlock x:Name="SF_tbFileHash" Text="{Binding SF_TbFileHash, Mode=TwoWay, NotifyOnSourceUpdated=True}" Height="80" Width="400"/>-->
-
-                        <!--</StackPanelOrientation>-->
                     </Grid>
                     <Grid Grid.Row="4">
                         <Grid.ColumnDefinitions>
@@ -88,7 +85,48 @@
                 </Grid>
             </TabItem>
             <TabItem x:Name="tabMF" Header="Multiple Files">
-
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35*"/>
+                        <RowDefinition Height="200*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70*"/>
+                            <ColumnDefinition Width="530*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="Checksum: " HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Margin="0,4" Width="70" />
+                        <TextBox x:Name="MF_txtUserHash" Grid.Column="1" Text="{Binding MF_TxtUserHash}" Margin="0,4,4,0" VerticalAlignment="Top" Height="25" MinWidth="515" TextChanged="MF_txtUserHash_TextChanged"/>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition MinWidth="150" Width="210"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition MinWidth="280"/>
+                        </Grid.ColumnDefinitions>
+                        <ListBox Grid.Column="0" ItemsSource="{Binding MF_FileList}"  MinWidth="150" Margin="5"/>
+                        <GridSplitter Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Black" ShowsPreview="True" Width="2" Margin="0,3"/>
+                        <Grid Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition MinWidth="60" Width="60*" MaxWidth="85"/>
+                                <ColumnDefinition MinWidth="220" Width="220*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Margin="5,5,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="20*" MaxHeight="35"/>
+                                    <RowDefinition Height="20*" MaxHeight="35"/>
+                                    <RowDefinition Height="20*" MaxHeight="35"/>
+                                    <RowDefinition Height="80*"/>
+                                </Grid.RowDefinitions>
+                                <Button Grid.Row="0" Command="{Binding MF_CmdBrowse}" Content="Browse..." Width="75" MinWidth="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                                <Button x:Name="MF_btnCompare" Grid.Row="1" Command="{Binding MF_CmdCompare}" Content="{Binding MF_BtnCompareText}" Width="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                                <Button Grid.Row="2" Command="{Binding MF_CmdExport}" Content="Export..." Width="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                                <ProgressBar Grid.Row="3" Value="{Binding MF_Progress}" Minimum="0" Maximum="{Binding MF_Progress_Max}" Width="75" Height="10" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,5" />
+                            </Grid>
+                            <ListBox Grid.Column="1" ItemsSource="{Binding MF_ResultList}" MinWidth="210" Margin="5" Background="#FFE5E5E5" BorderThickness="2,2,1,1"  />
+                        </Grid>
+                    </Grid>
+                </Grid>
             </TabItem>
         </TabControl>
         <!--<Grid.Background>
