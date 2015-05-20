@@ -84,6 +84,7 @@ namespace ChecksumVerifier
                     if(!String.IsNullOrWhiteSpace(s))
                     { 
                         Paragraph p = new Paragraph();
+                        p.Margin = new Thickness(0);
                         p.Inlines.Add(s.Trim());
                         if(s.Contains("Valid"))
                         {
@@ -105,7 +106,6 @@ namespace ChecksumVerifier
         {
             if (String.IsNullOrWhiteSpace(this.SF_txtUserHash.Text))
             {
-                //this.SF_btnCompare.Content = "";
                 vm.SF_BtnCompareText = "Generate";
             }
             else
