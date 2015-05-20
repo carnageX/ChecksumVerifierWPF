@@ -102,13 +102,13 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition MinWidth="150" Width="210"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition MinWidth="280"/>
+                            <ColumnDefinition MinWidth="280" Width="280*"/>
                         </Grid.ColumnDefinitions>
                         <ListBox Grid.Column="0" ItemsSource="{Binding MF_FileList}"  MinWidth="150" Margin="5"/>
                         <GridSplitter Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Black" ShowsPreview="True" Width="2" Margin="0,3"/>
                         <Grid Grid.Column="2">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition MinWidth="60" Width="60*" MaxWidth="85"/>
+                                <ColumnDefinition MinWidth="85" Width="85*" MaxWidth="85"/>
                                 <ColumnDefinition MinWidth="220" Width="220*"/>
                             </Grid.ColumnDefinitions>
                             <Grid Grid.Column="0" Margin="5,5,0,0">
@@ -121,9 +121,16 @@
                                 <Button Grid.Row="0" Command="{Binding MF_CmdBrowse}" Content="Browse..." Width="75" MinWidth="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top" />
                                 <Button x:Name="MF_btnCompare" Grid.Row="1" Command="{Binding MF_CmdCompare}" Content="{Binding MF_BtnCompareText}" Width="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top" />
                                 <Button Grid.Row="2" Command="{Binding MF_CmdExport}" Content="Export..." Width="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top" />
-                                <ProgressBar Grid.Row="3" Value="{Binding MF_Progress}" Minimum="0" Maximum="{Binding MF_Progress_Max}" Width="75" Height="10" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,5" />
+                                <ProgressBar Grid.Row="3" Value="{Binding MF_Progress}" Maximum="{Binding MF_Progress_Max}" Width="75" Height="10" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,5" />
                             </Grid>
-                            <ListBox Grid.Column="1" ItemsSource="{Binding MF_ResultList}" MinWidth="210" Margin="5" Background="#FFE5E5E5" BorderThickness="2,2,1,1"  />
+                            <ListBox x:Name="MF_LbResults" Grid.Column="1" ItemsSource="{Binding MF_ResultList}" MinWidth="210" Margin="5" Background="#FFE5E5E5" BorderThickness="2,2,1,1" SelectionChanged="MF_LbResults_SelectionChanged"  >
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Copy Selected" Command="{Binding MF_CmdCopySelected}"/>
+                                        <MenuItem Header="Copy All" Command="{Binding MF_CmdCopyAll}" />
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
                         </Grid>
                     </Grid>
                 </Grid>

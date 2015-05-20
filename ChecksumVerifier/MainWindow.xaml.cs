@@ -35,6 +35,7 @@ namespace ChecksumVerifier
             this.SF_lblResult.TargetUpdated += SF_lblResult_TargetUpdated;
             this.vm = new MainViewModel();
             this.DataContext = vm;
+            vm.MF_Progress_Max = 1;
         }
         #endregion
 
@@ -127,6 +128,13 @@ namespace ChecksumVerifier
                 vm.MF_BtnCompareText = "Compare";
             }
         }
+
+        private void MF_LbResults_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            vm.MF_SelectedResultIndex = this.MF_LbResults.SelectedIndex;
+        }
         #endregion
+
+
     }
 }

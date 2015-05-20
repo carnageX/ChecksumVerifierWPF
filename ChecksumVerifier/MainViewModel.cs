@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ChecksumVerifier
@@ -193,7 +194,7 @@ namespace ChecksumVerifier
                 try
                 {
                     this.SF_Progress = 50;
-                    //this.SF_LblResult = String.Empty;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
                     StringBuilder sbCompareResults = new StringBuilder();
                     List<string> hashList = ChecksumVerifierLogic.GetHash(this.SF_TxtFilePath, this.SelectedAlgorithms.ToList());
                     this._SF_progress += 40;
@@ -233,6 +234,7 @@ namespace ChecksumVerifier
             {
                 this._SF_lblResult = "Error!  No file to calculate checksum!";
             }//else
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
         }//SF_Compare
         #endregion
         #endregion
@@ -254,7 +256,6 @@ namespace ChecksumVerifier
         }//MF_TxtUserHash
         public string _MF_txtUserHash;
 
-
         public string MF_BtnCompareText
         {
             get
@@ -273,7 +274,6 @@ namespace ChecksumVerifier
             }
         }
         public string _MF_btnCompareText;
-
 
         public List<string> MF_FileList
         {
@@ -330,6 +330,20 @@ namespace ChecksumVerifier
             }
         }//MF_Progress
         public int _MF_progress_max;
+
+        public int MF_SelectedResultIndex
+        {
+            get { return _MF_selectedResultIndex; }
+            set
+            {
+                if (_MF_selectedResultIndex != value)
+                {
+                    _MF_selectedResultIndex = value;
+                    RaisePropertyChanged("MF_SelectedResultIndex");
+                }
+            }
+        }//MF_SelectedResultIndex
+        public int _MF_selectedResultIndex;
         #endregion
 
         #region MF Browse File
@@ -421,7 +435,7 @@ namespace ChecksumVerifier
 
             if (this.MF_FileList.Count > 0)
             {
-            //    this.Cursor = Cursors.WaitCursor;
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
                 for (int i = 0; i < this.MF_FileList.Count; i++)
                 {
                     List<string> hashList = ChecksumVerifierLogic.GetHash(this.MF_FileList[i], this.SelectedAlgorithms.ToList());
@@ -445,12 +459,58 @@ namespace ChecksumVerifier
                         }//else
                     }//for - j
                 }//for - i
-            //    this.Cursor = Cursors.Default;
             }//if
             else
             {
                 this.MF_ResultList.Add("Error!  No file(s) to calculate checksum!");
             }//else
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+        }
+        #endregion
+
+        #region MF Copy Selected
+        public ICommand MF_CmdCopySelected
+        {
+            get
+            {
+                if(this._MF_cmdCopySelected == null)
+                    this._MF_cmdCopySelected = new RelayCommand(MF_CopySelected, MF_CanCopySelected);
+                return this._MF_cmdCopySelected;
+            }
+        }
+        private RelayCommand _MF_cmdCopySelected;
+
+        private bool MF_CanCopySelected()
+        {
+            return true;
+        }
+
+        private void MF_CopySelected()
+        {
+            Clipboard.SetText(this.MF_ResultList[this.MF_SelectedResultIndex]);
+        }
+        #endregion
+
+        #region MF Copy All
+        public ICommand MF_CmdCopyAll
+        {
+            get
+            {
+                if (this._MF_cmdCopyAll == null)
+                    this._MF_cmdCopyAll = new RelayCommand(MF_CopyAll, MF_CanCopyAll);
+                return this._MF_cmdCopyAll;
+            }
+        }
+        private RelayCommand _MF_cmdCopyAll;
+
+        private bool MF_CanCopyAll()
+        {
+            return true;
+        }
+
+        private void MF_CopyAll()
+        {
+            Clipboard.SetText(String.Join("\n", this.MF_ResultList));
         }
         #endregion
         #endregion
