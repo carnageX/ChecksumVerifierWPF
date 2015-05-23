@@ -25,11 +25,48 @@ namespace ChecksumVerifier
             }//catch
         }//GetHash
 
+        /// <summary>Generates checksum hash of a given file using a given algorithm.</summary>
+        /// <param name="filename">File path and name to generate checksum.</param>
+        /// <param name="hashOption">Checksum Algorithm.  Options are: MD5, SHA-1, SHA-256, SHA-384, and SHA-512</param>
+        /// <returns>Hash string to be returned.</returns>
+        public static string GetHash_Threaded(string filename, string hashOption, int threadCount)
+        {
+            try
+            {
+                return ComputeHashAlgorithm(filename, hashOption);
+            }//try
+            catch
+            {
+                throw;
+            }//catch
+        }//GetHash
+
         /// <summary>Generates checksum hash of a given file using a list of given algorithms.</summary>
         /// <param name="filename">File path and name to generate checksum.</param>
         /// <param name="hashOption">List of Checksum Algorithms.  Options are: MD5, SHA-1, SHA-256, SHA-384, and SHA-512</param>
         /// <returns>List of hash strings to be returned.</returns>
         public static List<string> GetHash(string filename, List<string> hashOption)
+        {
+            List<string> returnHashes = new List<string>();
+            try
+            {
+                foreach (var s in hashOption)
+                {
+                    returnHashes.Add(ComputeHashAlgorithm(filename, s));
+                }//foreach
+            }//try
+            catch
+            {
+                throw;
+            }//catch
+            return returnHashes;
+        }//GetHash
+
+        /// <summary>Generates checksum hash of a given file using a list of given algorithms.</summary>
+        /// <param name="filename">File path and name to generate checksum.</param>
+        /// <param name="hashOption">List of Checksum Algorithms.  Options are: MD5, SHA-1, SHA-256, SHA-384, and SHA-512</param>
+        /// <returns>List of hash strings to be returned.</returns>
+        public static List<string> GetHash_Threaded(string filename, List<string> hashOption, int threadCount)
         {
             List<string> returnHashes = new List<string>();
             try
