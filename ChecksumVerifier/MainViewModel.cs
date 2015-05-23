@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -31,6 +32,10 @@ namespace ChecksumVerifier
 
         #region Single File
         #region Single File Properties
+        private BackgroundWorker SF_BwWorker;
+        private List<string> SF_CalculatedHashList = new List<string>();
+        private int SF_BWProgress { get; set; }
+
         public string SF_TxtUserHash
         {
             get { return this._SF_txtUserHash; }
@@ -193,54 +198,95 @@ namespace ChecksumVerifier
             {
                 try
                 {
-                    this.SF_Progress = 50;
-                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
-                    StringBuilder sbCompareResults = new StringBuilder();
-                    List<string> hashList = ChecksumVerifierLogic.GetHash(this.SF_TxtFilePath, this.SelectedAlgorithms.ToList());
-                    this._SF_progress += 40;
-                    if (String.IsNullOrWhiteSpace(this.SF_TxtUserHash))
+                    using(SF_BwWorker = new BackgroundWorker())
                     {
-                        for (int i = 0; i < hashList.Count; i++)
-                        {
-                            sbCompareResults.Append(String.Format("{0} == {1}{2}", this.SelectedAlgorithms[i], hashList[i], "\r"));
-                        }
+                        this.SF_LblResult = "";
+                        this.SF_TbFileHash = String.Format("Processing {0} for selected algorithms... Please wait...", this.SF_TxtFilePath);
+                        this.SF_Progress = 0;
+                        SF_BWProgress = 0;
+                        Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
+                        this.SF_BwWorker.DoWork += new DoWorkEventHandler(SF_BwWorker_DoWork);
+                        this.SF_BwWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(SF_BwWorker_RunWorkerCompleted);
+                        this.SF_BwWorker.ProgressChanged += new ProgressChangedEventHandler(SF_BwWorker_ProgressChanged);
+                        SF_BwWorker.WorkerReportsProgress = true;
+
+                        SF_BwWorker.RunWorkerAsync();
                     }
-                    else
-                    {
-                        for (int i = 0; i < hashList.Count; i++)
-                        {
-                            if (ChecksumVerifierLogic.CompareHashes(this.SF_TxtUserHash, hashList[i]))
-                            {
-                                sbCompareResults.Append(String.Format("Valid! Matching {0} checksum: {1}{2}", this.SelectedAlgorithms[i], hashList[i], "\r"));
-                            }
-                            else
-                            {
-                                sbCompareResults.Append(String.Format("Invalid! Mismatched {0} checksum: {1}{2}", this.SelectedAlgorithms[i], hashList[i], "\r"));
-                            }
-                        }
-                    }
-                    this.SF_Progress = 100;
-                    this.SF_LblResult = "Finished!";
-                    this.SF_TbFileHash = sbCompareResults.ToString();
                 }
                 catch(Exception ex)
                 {
-                    this._SF_progress = 0;
+                    this.SF_Progress = 0;
                     this.SF_LblResult = "Error! " + ex.Message;
                     this.SF_LblFileSize = String.Empty;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
                 }
             }//if
             else
             {
                 this._SF_lblResult = "Error!  No file to calculate checksum!";
             }//else
+        }
+
+        void SF_BwWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            this.SF_Progress = e.ProgressPercentage;
+        }
+
+        void SF_BwWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            StringBuilder sbCompareResults = new StringBuilder();
+            
+            if (String.IsNullOrWhiteSpace(this.SF_TxtUserHash))
+            {
+                for (int i = 0; i < this.SelectedAlgorithms.Count; i++)
+                {
+                    sbCompareResults.Append(String.Format("{0} == {1}{2}", this.SelectedAlgorithms[i], this.SF_CalculatedHashList[i], "\r"));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < this.SelectedAlgorithms.Count; i++)
+                {
+                    if (ChecksumVerifierLogic.CompareHashes(this.SF_TxtUserHash, this.SF_CalculatedHashList[i]))
+                    {
+                        sbCompareResults.Append(String.Format("Valid! Matching {0} checksum: {1}{2}", this.SelectedAlgorithms[i], this.SF_CalculatedHashList[i], "\r"));
+                    }
+                    else
+                    {
+                        sbCompareResults.Append(String.Format("Invalid! Mismatched {0} checksum: {1}{2}", this.SelectedAlgorithms[i], this.SF_CalculatedHashList[i], "\r"));
+                    }
+                }
+            }
+            //this.SF_Progress = 100;
+            this.SF_LblResult = "Finished!";
+            this.SF_TbFileHash = sbCompareResults.ToString();
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+        }
+
+        private void SF_BwWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            SF_DoComparison(this.SF_TxtFilePath);
         }//SF_Compare
+
+        private void SF_DoComparison(string filepath)
+        {
+            foreach(string a in this.SelectedAlgorithms)
+            {
+                this.SF_CalculatedHashList.Add(ChecksumVerifierLogic.GetHash(filepath, a));
+                SF_BWProgress += (int)(((float)1 / (float)this.SelectedAlgorithms.Count) * 100);
+                this.SF_BwWorker.ReportProgress(SF_BWProgress);
+            }
+        }//SF_DoComparison
         #endregion
         #endregion
 
         #region Multiple Files
         #region Multiple Files Properties
+        private BackgroundWorker MF_BwWorker;
+        private List<string> MF_CalculatedHashList = new List<string>();
+        private int MF_BWProgress { get; set; }
+
         public string MF_TxtUserHash
         {
             get { return _MF_txtUserHash; }
