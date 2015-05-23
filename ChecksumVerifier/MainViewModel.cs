@@ -198,20 +198,24 @@ namespace ChecksumVerifier
             {
                 try
                 {
-                    using(SF_BwWorker = new BackgroundWorker())
+                    if(SF_BwWorker == null || !SF_BwWorker.IsBusy)
                     {
-                        this.SF_LblResult = "";
-                        this.SF_TbFileHash = String.Format("Processing {0} for selected algorithms... Please wait...", this.SF_TxtFilePath);
-                        this.SF_Progress = 0;
-                        SF_BWProgress = 0;
-                        Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+                        using(SF_BwWorker = new BackgroundWorker())
+                        {
+                            this.SF_LblResult = "";
+                            this.SF_TbFileHash = String.Format("Processing {0} for selected algorithms... Please wait...", this.SF_TxtFilePath);
+                            this.SF_Progress = 0;
+                            SF_BWProgress = 0;
+                            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+                        
+                            this.SF_BwWorker.DoWork += new DoWorkEventHandler(SF_BwWorker_DoWork);
+                            this.SF_BwWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(SF_BwWorker_RunWorkerCompleted);
+                            this.SF_BwWorker.ProgressChanged += new ProgressChangedEventHandler(SF_BwWorker_ProgressChanged);
+                            SF_BwWorker.WorkerReportsProgress = true;
+                            SF_BwWorker.WorkerSupportsCancellation = true;
 
-                        this.SF_BwWorker.DoWork += new DoWorkEventHandler(SF_BwWorker_DoWork);
-                        this.SF_BwWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(SF_BwWorker_RunWorkerCompleted);
-                        this.SF_BwWorker.ProgressChanged += new ProgressChangedEventHandler(SF_BwWorker_ProgressChanged);
-                        SF_BwWorker.WorkerReportsProgress = true;
-
-                        SF_BwWorker.RunWorkerAsync();
+                            SF_BwWorker.RunWorkerAsync();
+                        }
                     }
                 }
                 catch(Exception ex)
@@ -258,7 +262,6 @@ namespace ChecksumVerifier
                     }
                 }
             }
-            //this.SF_Progress = 100;
             this.SF_LblResult = "Finished!";
             this.SF_TbFileHash = sbCompareResults.ToString();
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
