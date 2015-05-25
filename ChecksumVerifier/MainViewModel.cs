@@ -228,7 +228,7 @@ namespace ChecksumVerifier
             }//if
             else
             {
-                this._SF_lblResult = "Error!  No file to calculate checksum!";
+                this.SF_LblResult = "Error!  No file to calculate checksum!";
             }//else
         }
 
@@ -239,31 +239,38 @@ namespace ChecksumVerifier
 
         void SF_BwWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            StringBuilder sbCompareResults = new StringBuilder();
-            
-            if (String.IsNullOrWhiteSpace(this.SF_TxtUserHash))
+            try
             {
-                for (int i = 0; i < this.SelectedAlgorithms.Count; i++)
+                StringBuilder sbCompareResults = new StringBuilder();
+
+                if (String.IsNullOrWhiteSpace(this.SF_TxtUserHash))
                 {
-                    sbCompareResults.Append(String.Format("{0} == {1}{2}", this.SelectedAlgorithms[i], this.SF_CalculatedHashList[i], "\r"));
-                }
-            }
-            else
-            {
-                for (int i = 0; i < this.SelectedAlgorithms.Count; i++)
-                {
-                    if (ChecksumVerifierLogic.CompareHashes(this.SF_TxtUserHash, this.SF_CalculatedHashList[i]))
+                    for (int i = 0; i < this.SelectedAlgorithms.Count; i++)
                     {
-                        sbCompareResults.Append(String.Format("Valid! Matching {0} checksum: {1}{2}", this.SelectedAlgorithms[i], this.SF_CalculatedHashList[i], "\r"));
-                    }
-                    else
-                    {
-                        sbCompareResults.Append(String.Format("Invalid! Mismatched {0} checksum: {1}{2}", this.SelectedAlgorithms[i], this.SF_CalculatedHashList[i], "\r"));
+                        sbCompareResults.Append(String.Format("{0} == {1}{2}", this.SelectedAlgorithms[i], this.SF_CalculatedHashList[i], "\r"));
                     }
                 }
+                else
+                {
+                    for (int i = 0; i < this.SelectedAlgorithms.Count; i++)
+                    {
+                        if (ChecksumVerifierLogic.CompareHashes(this.SF_TxtUserHash, this.SF_CalculatedHashList[i]))
+                        {
+                            sbCompareResults.Append(String.Format("Valid! Matching {0} checksum: {1}{2}", this.SelectedAlgorithms[i], this.SF_CalculatedHashList[i], "\r"));
+                        }
+                        else
+                        {
+                            sbCompareResults.Append(String.Format("Invalid! Mismatched {0} checksum: {1}{2}", this.SelectedAlgorithms[i], this.SF_CalculatedHashList[i], "\r"));
+                        }
+                    }
+                }
+                this.SF_LblResult = "Finished!";
+                this.SF_TbFileHash = sbCompareResults.ToString();
             }
-            this.SF_LblResult = "Finished!";
-            this.SF_TbFileHash = sbCompareResults.ToString();
+            catch(Exception ex)
+            {
+                this.SF_LblResult = "Error! " + ex.Message;
+            }
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
         }
 
@@ -481,7 +488,7 @@ namespace ChecksumVerifier
             //this.MF_Progress_Max = this.MF_FileList.Count;
             this.MF_ResultList = new List<string>();
 
-            if (this.MF_FileList.Count > 0)
+            if (this.MF_FileList != null && this.MF_FileList.Count > 0)
             {
                 try
                 {
