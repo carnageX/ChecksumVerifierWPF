@@ -478,42 +478,86 @@ namespace ChecksumVerifier
 
         private void MF_Compare()
         {
-            this.MF_Progress = 0;
-            this.MF_Progress_Max = this.MF_FileList.Count;
+            //this.MF_Progress_Max = this.MF_FileList.Count;
             this.MF_ResultList = new List<string>();
 
             if (this.MF_FileList.Count > 0)
             {
-                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
-                for (int i = 0; i < this.MF_FileList.Count; i++)
+                try
                 {
-                    List<string> hashList = ChecksumVerifierLogic.GetHash(this.MF_FileList[i], this.SelectedAlgorithms.ToList());
-                    this.MF_Progress += 1;
-                    for (int j = 0; j < hashList.Count; j++)
+                    if (MF_BwWorker == null || !MF_BwWorker.IsBusy)
                     {
-                        if (!String.IsNullOrWhiteSpace(this.MF_TxtUserHash))
+                        using (MF_BwWorker = new BackgroundWorker())
                         {
-                            if (ChecksumVerifierLogic.CompareHashes(this.MF_TxtUserHash, hashList[j]))
-                            {
-                                this.MF_ResultList.Add(String.Format("{0}: Checkum match! - {1} - {2}", this.MF_FileList[i], this.SelectedAlgorithms[j], hashList[j]));
-                            }//if
-                            else
-                            {
-                                this.MF_ResultList.Add(String.Format("{0}: Checkum mismatch! - {1} - {2}", this.MF_FileList[i], this.SelectedAlgorithms[j], hashList[j]));
-                            }//else
-                        }//if
-                        else
-                        {
-                            this.MF_ResultList.Add(String.Format("{0} - {1} - {2}", this.MF_FileList[i], this.SelectedAlgorithms[j], hashList[j]));
-                        }//else
-                    }//for - j
-                }//for - i
+                            this.MF_Progress = 0;
+                            MF_BWProgress = 0;
+                            MF_CalculatedHashList.Clear();
+
+                            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+                            this.MF_BwWorker.DoWork += new DoWorkEventHandler(MF_BwWorker_DoWork);
+                            this.MF_BwWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(MF_BwWorker_RunWorkerCompleted);
+                            this.MF_BwWorker.ProgressChanged += new ProgressChangedEventHandler(MF_BwWorker_ProgressChanged);
+                            MF_BwWorker.WorkerReportsProgress = true;
+                            MF_BwWorker.WorkerSupportsCancellation = true;
+
+                            MF_BwWorker.RunWorkerAsync();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.MF_Progress = 0;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }//if
             else
             {
                 this.MF_ResultList.Add("Error!  No file(s) to calculate checksum!");
             }//else
+        }
+
+        private void MF_BwWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            this.MF_Progress = e.ProgressPercentage;
+        }
+
+        private void MF_BwWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            this.MF_Progress = 100;
             Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+            this.MF_ResultList = MF_CalculatedHashList;
+        }
+
+        private void MF_BwWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            foreach (string f in this.MF_FileList)
+            {
+                foreach (string a in this.SelectedAlgorithms)
+                {
+                    string hash = ChecksumVerifierLogic.GetHash(f, a);
+                    //this.MF_CalculatedHashList.Add(hash);
+
+                    if (!String.IsNullOrWhiteSpace(this.MF_TxtUserHash))
+                    {
+                        if (ChecksumVerifierLogic.CompareHashes(this.MF_TxtUserHash, hash))
+                        {
+                            this.MF_CalculatedHashList.Add(String.Format("{0}: Checkum match! - {1} - {2}", f, a, hash));
+                        }//if
+                        else
+                        {
+                            this.MF_CalculatedHashList.Add(String.Format("{0}: Checkum mismatch! - {1} - {2}", f, a, hash));
+                        }//else
+                    }//if
+                    else
+                    {
+                        this.MF_CalculatedHashList.Add(String.Format("{0} - {1} - {2}", f, a, hash));
+                    }//else
+
+                    MF_BWProgress += (int)(((float)1 / (float)this.SelectedAlgorithms.Count) * ((float)1 / (float)this.MF_FileList.Count) * 100);
+                    this.MF_BwWorker.ReportProgress(MF_BWProgress);
+                }//algorithms 
+            }//files
         }
         #endregion
 
