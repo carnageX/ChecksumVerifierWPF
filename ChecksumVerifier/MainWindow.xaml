@@ -139,6 +139,23 @@
                     </Grid>
                 </Grid>
             </TabItem>
+            <TabItem x:Name="tabSingleText" Header="Text - Single">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="95*"/>
+                            <ColumnDefinition Width="504*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="Encoding Type: " VerticalAlignment="Center" HorizontalAlignment="Left" Height="26" Margin="0,45" Width="94"></Label>
+                        <ComboBox x:Name="TS_cbEncodingType" Grid.Column="1" ItemsSource="{Binding EncodingTypes}" DisplayMemberPath="Name" SelectedValuePath="Type" SelectedItem="{Binding SelectedEncodingType}" MaxDropDownHeight="150" Margin="0,46"/>
+                    </Grid>
+
+                </Grid>
+            </TabItem>
         </TabControl>
         <!--<Grid.Background>
             <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}"/>
