@@ -24,7 +24,9 @@ namespace ChecksumVerifier
         #region Main Methods
         public MainViewModel()
         {
-            this.Algorithms = new List<string>() { "MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512", "RIPEMD160", "CRC16", "CRC32" };
+            this.Algorithms = new List<string>() { "MD5", "MD5-CNG", "SHA-1", "SHA-1-Managed", "SHA-1-CNG", 
+                "SHA-256", "SHA-256-Managed", "SHA-256-CNG", "SHA-384", "SHA-384-Managed", "SHA-384-CNG", 
+                "SHA-512", "SHA-512-Managed", "SHA-512-CNG", "RIPEMD160", "RIPEMD160-Managed", "CRC16", "CRC32" };
             this.SelectedAlgorithms = new ObservableCollection<string>();
             this.SelectedAlgorithms.Add(this.Algorithms[0]);
         }//MainViewModel

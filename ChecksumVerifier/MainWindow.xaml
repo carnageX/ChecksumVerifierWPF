@@ -23,9 +23,9 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" x:Name="lblAlgorithm" Content="Algorithm: " VerticalAlignment="Center" Margin="71,4,10,5"/>
+                <Label Grid.Column="0" x:Name="lblAlgorithm" Content="Algorithm: " VerticalAlignment="Center" Margin="61,4,20,5"/>
                 <xctk:CheckComboBox x:Name="ccbListChecksums" ItemsSource="{Binding Algorithms}" SelectedItemsOverride="{Binding SelectedAlgorithms}"
-                                    Delimiter="+" Height="25" Margin="145,5,5,5" Grid.ColumnSpan="2"/>
+                                    Delimiter="+" Height="25" Margin="130,5,5,5" Grid.ColumnSpan="2" MaxDropDownHeight="150"/>
             </Grid>
         </Grid>
         <TabControl Grid.Row="1" Margin="5,0,5,10">
