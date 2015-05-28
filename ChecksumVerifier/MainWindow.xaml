@@ -29,7 +29,7 @@
             </Grid>
         </Grid>
         <TabControl Grid.Row="1" Margin="5,0,5,10">
-            <TabItem x:Name="tabSF" Header="Single File" Background="#FFE5E5E5">
+            <TabItem x:Name="tabSF" Header="Single File">
                 <Grid Background="#FFE5E5E5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="35*"/>
@@ -84,7 +84,7 @@
                             <ColumnDefinition Width="115*"/>
                         </Grid.ColumnDefinitions>
                         <Label x:Name="SF_lblResult" Grid.Column="0" Content="{Binding SF_LblResult, NotifyOnTargetUpdated=True}" VerticalAlignment="Top" Height="30" Margin="0,0,4,-4"/>
-                        <ProgressBar Grid.Column="1" Value="{Binding SF_Progress}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="100" Height="10" Margin="0,0,5,0" BorderThickness="1" BorderBrush="Black"/>
+                        <ProgressBar Grid.Column="1" Value="{Binding SF_Progress}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="100" Height="10" Margin="0,0,5,0" />
                     </Grid>
                 </Grid>
             </TabItem>
@@ -142,18 +142,37 @@
             <TabItem x:Name="tabSingleText" Header="Text - Single">
                 <Grid Background="#FFE5E5E5">
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="150*"/>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0">
+                    <Grid Grid.Row="0" VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="95*"/>
+                            <ColumnDefinition Width="95"/>
                             <ColumnDefinition Width="504*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="Encoding Type: " VerticalAlignment="Center" HorizontalAlignment="Left" Height="26" Margin="0,45" Width="94"></Label>
-                        <ComboBox x:Name="TS_cbEncodingType" Grid.Column="1" ItemsSource="{Binding EncodingTypes}" DisplayMemberPath="Name" SelectedValuePath="Type" SelectedItem="{Binding SelectedEncodingType}" MaxDropDownHeight="150" Margin="0,46"/>
+                        <Label Content="Input String: " Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Height="26" Width="94"></Label>
+                        <TextBox Grid.Column="1" Height="26" VerticalAlignment="Center" Text="{Binding TS_TxtUserText}" MinWidth="498" Margin="0,0,1,0"/>
                     </Grid>
-
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="95"/>
+                            <ColumnDefinition Width="204"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="50*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="Encoding Type: " VerticalAlignment="Center" HorizontalAlignment="Left" Height="26" Width="94"></Label>
+                        <ComboBox x:Name="TS_cbEncodingType" Grid.Column="1" Height="26" HorizontalAlignment="Left" Width="200" ItemsSource="{Binding EncodingTypes}" DisplayMemberPath="Name" SelectedValuePath="Type" SelectedItem="{Binding SelectedEncodingType}" MaxDropDownHeight="150" />
+                        <Button x:Name="TS_btnCompare" Content="{Binding TS_BtnCompareText}" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Width="90" Command="{Binding TS_CmdCompare}" Height="26"/>
+                        <ProgressBar Grid.Column="3" Value="{Binding TS_Progress}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="100" Height="10" Margin="5"/>
+                    </Grid>
+                    <RichTextBox x:Name="TS_rtbFileHash" Grid.Row="2" IsReadOnly="True" Background="#FFE5E5E5" Margin="5" BorderThickness="2,2,1,1" IsReadOnlyCaretVisible="True" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto">
+                        <FlowDocument>
+                            <Paragraph>
+                                <Run Text="{Binding TS_TbResultHash, Mode=TwoWay, NotifyOnTargetUpdated=True}"/>
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox>
                 </Grid>
             </TabItem>
         </TabControl>

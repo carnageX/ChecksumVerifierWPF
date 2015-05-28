@@ -31,6 +31,7 @@ namespace ChecksumVerifier
         public MainWindow()
         {
             InitializeComponent();
+            this.TS_cbEncodingType.SelectedIndex = 0;
             this.SF_rtbFileHash.TargetUpdated += SF_rtbFileHash_TargetUpdated;
             this.SF_lblResult.TargetUpdated += SF_lblResult_TargetUpdated;
             this.vm = new MainViewModel();
@@ -135,6 +136,8 @@ namespace ChecksumVerifier
         }
         #endregion
 
+        #region Text Single Events
 
+        #endregion
     }
 }
