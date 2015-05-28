@@ -19,6 +19,9 @@ namespace ChecksumVerifier
         #region Class Properties
         public List<string> Algorithms { get; set; }
         public ObservableCollection<string> SelectedAlgorithms { get; set; }
+        //public ObservableCollection<System.Text.Encoding> EncodingTypes { get; set; }
+        public List<EncodingType> EncodingTypes { get; set; }
+        public EncodingType SelectedEncodingType { get; set; }
         #endregion
 
         #region Main Methods
@@ -29,6 +32,13 @@ namespace ChecksumVerifier
                 "SHA-512", "SHA-512-Managed", "SHA-512-CNG", "RIPEMD160", "RIPEMD160-Managed", "CRC16", "CRC32" };
             this.SelectedAlgorithms = new ObservableCollection<string>();
             this.SelectedAlgorithms.Add(this.Algorithms[0]);
+            this.EncodingTypes = new List<EncodingType>() { 
+                new EncodingType("Default (System)", Encoding.Default), new EncodingType("ASCII", Encoding.ASCII),
+                new EncodingType("Big Endian Unicode", Encoding.BigEndianUnicode), new EncodingType("Unicode", Encoding.Unicode), 
+                new EncodingType("UTF7", Encoding.UTF7), new EncodingType("UTF8", Encoding.UTF8), 
+                new EncodingType("UTF32", Encoding.UTF32)
+            };
+            this.SelectedEncodingType = new EncodingType("Default (System)", Encoding.Default);
         }//MainViewModel
         #endregion
 
@@ -614,6 +624,28 @@ namespace ChecksumVerifier
         {
             Clipboard.SetText(String.Join("\n", this.MF_ResultList));
         }
+        #endregion
+        #endregion
+
+        #region Text - Single 
+        #region Text - Single Properties
+        private BackgroundWorker TS_BwWorker;
+        private List<string> TS_CalculatedHashList = new List<string>();
+        private int TS_BWProgress { get; set; }
+
+        public string TS_TxtUserText
+        {
+            get { return this._TS_txtUserText; }
+            set
+            {
+                if(this._TS_txtUserText != value)
+                {
+                    this._TS_txtUserText = value;
+                    RaisePropertyChanged("TS_TxtUserText");
+                }
+            }
+        }
+        public string _TS_txtUserText;
         #endregion
         #endregion
     }
