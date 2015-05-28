@@ -108,7 +108,9 @@
     <Compile Include="ChecksumVerifier.cs" />
     <Compile Include="CRC16.cs" />
     <Compile Include="CRC32.cs" />
-    <Compile Include="EncodingType.cs" />
+    <Compile Include="EncodingType.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
