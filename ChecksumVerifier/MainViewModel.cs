@@ -801,7 +801,7 @@ namespace ChecksumVerifier
             {
                 this.TS_TbResultHash = "Error! " + ex.Message;
             }
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
         }
 
         void TS_BwWorker_DoWork(object sender, DoWorkEventArgs e)
