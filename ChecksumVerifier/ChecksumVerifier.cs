@@ -26,6 +26,18 @@ namespace ChecksumVerifier
             }//catch
         }//GetHash
 
+        public static string GetHash(string clearText, string hashOption, Encoding encodingType)
+        {
+            try
+            {
+                return ComputeHashAlgorithm(clearText, hashOption, encodingType);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         /// <summary>Generates checksum hash of a given file using a given algorithm.</summary>
         /// <param name="filename">File path and name to generate checksum.</param>
         /// <param name="hashOption">Checksum Algorithm.  Options are: MD5, SHA-1, SHA-256, SHA-384, and SHA-512</param>
