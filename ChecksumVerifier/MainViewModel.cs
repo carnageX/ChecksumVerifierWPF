@@ -19,7 +19,6 @@ namespace ChecksumVerifier
         #region Class Properties
         public List<string> Algorithms { get; set; }
         public ObservableCollection<string> SelectedAlgorithms { get; set; }
-        //public ObservableCollection<System.Text.Encoding> EncodingTypes { get; set; }
         public List<EncodingType> EncodingTypes { get; set; }
         public EncodingType SelectedEncodingType { get; set; }
         #endregion
@@ -646,6 +645,176 @@ namespace ChecksumVerifier
             }
         }
         public string _TS_txtUserText;
+
+        public string TS_TxtUserHash
+        {
+            get { return this._TS_txtUserHash; }
+            set
+            {
+                if (this._TS_txtUserHash != value)
+                {
+                    this._TS_txtUserHash = value;
+                    RaisePropertyChanged("TS_TxtUserHash");
+                }
+            }
+        }
+        public string _TS_txtUserHash;
+
+        public string TS_BtnCompareText
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(this._TS_btnCompareText))
+                    this.TS_BtnCompareText = "Generate";
+                return this._TS_btnCompareText;
+            }
+            set
+            {
+                if (this._TS_btnCompareText != value)
+                {
+                    this._TS_btnCompareText = value;
+                    RaisePropertyChanged("TS_BtnCompareText");
+                }
+            }
+        }//BtnCompareText
+        public string _TS_btnCompareText;
+
+        public string TS_TbResultHash
+        {
+            get { return this._TS_tbResultHash; }
+            set
+            {
+                if (this._TS_tbResultHash != value)
+                {
+                    this._TS_tbResultHash = value;
+                    RaisePropertyChanged("TS_TbResultHash");
+                }
+            }
+        }
+        public string _TS_tbResultHash;
+
+        public int TS_Progress
+        {
+            get { return _TS_progress; }
+            set
+            {
+                if (_TS_progress != value)
+                {
+                    _TS_progress = value;
+                    RaisePropertyChanged("TS_Progress");
+                }
+            }
+        }//TS_Progress
+        public int _TS_progress;
+        #endregion
+
+        #region Text - Single Compare
+        public ICommand TS_CmdCompare
+        {
+            get
+            {
+                if (this._TS_cmdCompare == null)
+                    this._TS_cmdCompare = new RelayCommand(TS_Compare, TS_CanCompare);
+                return this._TS_cmdCompare;
+            }
+        }
+        private RelayCommand _TS_cmdCompare;
+
+        private bool TS_CanCompare()
+        {
+            return true;
+        }
+
+        private void TS_Compare()
+        {
+            if (!String.IsNullOrEmpty(this.TS_TxtUserText))
+            {
+                this.TS_CalculatedHashList.Clear();
+                try
+                {
+                    if (TS_BwWorker == null || !TS_BwWorker.IsBusy)
+                    {
+                        using (TS_BwWorker = new BackgroundWorker())
+                        {
+                            this.TS_Progress = 0;
+                            TS_BWProgress = 0;
+                            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
+                            this.TS_BwWorker.DoWork += new DoWorkEventHandler(TS_BwWorker_DoWork);
+                            this.TS_BwWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(TS_BwWorker_RunWorkerCompleted);
+                            this.TS_BwWorker.ProgressChanged += new ProgressChangedEventHandler(TS_BwWorker_ProgressChanged);
+                            TS_BwWorker.WorkerReportsProgress = true;
+                            TS_BwWorker.WorkerSupportsCancellation = true;
+
+                            TS_BwWorker.RunWorkerAsync();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.TS_Progress = 0;
+                    this.TS_TbResultHash = "Error! " + ex.Message;
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+                }
+            }
+            else
+            {
+                this.TS_TbResultHash = "No input string given!";
+            }
+        }
+
+        void TS_BwWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            this.TS_Progress = e.ProgressPercentage;
+        }
+
+        void TS_BwWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            try
+            {
+                StringBuilder sbResults = new StringBuilder();
+
+                if (String.IsNullOrWhiteSpace(this.TS_TxtUserHash))
+                {
+                    for (int i = 0; i < this.SelectedAlgorithms.Count; i++)
+                    {
+                        sbResults.Append(String.Format("{0} == {1}{2}", this.SelectedAlgorithms[i], this.TS_CalculatedHashList[i], "\r"));
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < this.SelectedAlgorithms.Count; i++)
+                    {
+                        if (ChecksumVerifierLogic.CompareHashes(this.TS_TxtUserHash, this.TS_CalculatedHashList[i]))
+                        {
+                            sbResults.Append(String.Format("Valid! Matching {0} checksum: {1}{2}", this.SelectedAlgorithms[i], this.TS_CalculatedHashList[i], "\r"));
+                        }
+                        else
+                        {
+                            sbResults.Append(String.Format("Invalid! Mismatched {0} checksum: {1}{2}", this.SelectedAlgorithms[i], this.TS_CalculatedHashList[i], "\r"));
+                        }
+                    }
+                }
+                this.TS_TbResultHash = sbResults.ToString();
+            }
+            catch(Exception ex)
+            {
+                this.TS_TbResultHash = "Error! " + ex.Message;
+            }
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+        }
+
+        void TS_BwWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            foreach (string a in this.SelectedAlgorithms)
+            {
+                this.TS_CalculatedHashList.Add(ChecksumVerifierLogic.GetHash(this.TS_TxtUserText, a, this.SelectedEncodingType.Type));
+                TS_BWProgress += (int)(((float)1 / (float)this.SelectedAlgorithms.Count) * 100);
+                this.TS_BwWorker.ReportProgress(TS_BWProgress);
+            }
+        }
+
+
         #endregion
         #endregion
     }
