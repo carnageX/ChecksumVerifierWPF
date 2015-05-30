@@ -31,13 +31,17 @@ namespace ChecksumVerifier
         public MainWindow()
         {
             InitializeComponent();
-            this.TS_cbEncodingType.SelectedIndex = 0;
             this.SF_rtbFileHash.TargetUpdated += SF_rtbFileHash_TargetUpdated;
             this.SF_lblResult.TargetUpdated += SF_lblResult_TargetUpdated;
+            this.TS_rtbFileHash.TargetUpdated += TS_rtbFileHash_TargetUpdated;
+
             this.vm = new MainViewModel();
             this.DataContext = vm;
             vm.MF_Progress_Max = 1;
+            this.TS_cbEncodingType.SelectedIndex = 0;
         }
+
+
         #endregion
 
         #region Single File Events
@@ -76,7 +80,7 @@ namespace ChecksumVerifier
         private bool SF_HandleColorOnText()
         {
             TextRange tr = new TextRange(this.SF_rtbFileHash.Document.ContentStart, this.SF_rtbFileHash.Document.ContentEnd);
-            if(!String.IsNullOrEmpty(tr.Text))
+            if (!String.IsNullOrEmpty(tr.Text))
             {
                 string[] substrings = tr.Text.Split('\r');
                 this.SF_rtbFileHash.Document.Blocks.Clear();
@@ -137,7 +141,56 @@ namespace ChecksumVerifier
         #endregion
 
         #region Text Single Events
+        void TS_rtbFileHash_TargetUpdated(object sender, DataTransferEventArgs e)
+        {
+            if (!String.IsNullOrWhiteSpace(vm.TS_TxtUserHash))
+            {
+                e.Handled = TS_HandleColorOnText();
+            }
+        }
 
+        private bool TS_HandleColorOnText()
+        {
+            TextRange tr = new TextRange(this.TS_rtbFileHash.Document.ContentStart, this.TS_rtbFileHash.Document.ContentEnd);
+            if (!String.IsNullOrEmpty(tr.Text))
+            {
+                string[] substrings = tr.Text.Split('\r');
+                this.TS_rtbFileHash.Document.Blocks.Clear();
+
+                foreach (var s in substrings)
+                {
+                    if (!String.IsNullOrWhiteSpace(s))
+                    {
+                        Paragraph p = new Paragraph();
+                        p.Margin = new Thickness(0);
+                        p.Inlines.Add(s.Trim());
+                        if (s.Contains("Valid"))
+                        {
+                            p.Foreground = Brushes.Green;
+                        }
+                        else
+                        {
+                            p.Foreground = Brushes.Red;
+                        }
+                        this.TS_rtbFileHash.Document.Blocks.Add(p);
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private void TS_txtUserHash_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (String.IsNullOrWhiteSpace(this.TS_txtUserHash.Text))
+            {
+                vm.TS_BtnCompareText = "Generate";
+            }
+            else
+            {
+                vm.TS_BtnCompareText = "Compare";
+            }
+        }
         #endregion
     }
 }
