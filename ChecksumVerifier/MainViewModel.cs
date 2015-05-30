@@ -181,7 +181,7 @@ namespace ChecksumVerifier
             {
                 this.SF_TxtFilePath = SF_openDialog.FileName;
                 FileInfo fileInfo = new FileInfo(this.SF_TxtFilePath);
-                this.SF_LblFileSize = String.Format("(File Size: {0} KB)", (fileInfo.Length / 1024 + 1));
+                this.SF_LblFileSize = String.Format("(File Size: {0} KB)", (fileInfo.Length / 1024 + 1).ToString("N0"));
             }
         }//SF_BrowseFile
         #endregion
@@ -214,7 +214,8 @@ namespace ChecksumVerifier
                         using(SF_BwWorker = new BackgroundWorker())
                         {
                             this.SF_LblResult = "";
-                            this.SF_TbFileHash = String.Format("Processing {0} for selected algorithms... Please wait...", this.SF_TxtFilePath);
+                            this.SF_CalculatedHashList.Clear();
+                            //this.SF_TbFileHash = String.Format("Processing {0} for selected algorithms... Please wait...", this.SF_TxtFilePath);
                             this.SF_Progress = 0;
                             SF_BWProgress = 0;
                             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
@@ -234,7 +235,7 @@ namespace ChecksumVerifier
                     this.SF_Progress = 0;
                     this.SF_LblResult = "Error! " + ex.Message;
                     this.SF_LblFileSize = String.Empty;
-                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+                    Mouse.OverrideCursor = null;
                 }
             }//if
             else
@@ -277,12 +278,14 @@ namespace ChecksumVerifier
                 }
                 this.SF_LblResult = "Finished!";
                 this.SF_TbFileHash = sbCompareResults.ToString();
+                this.SF_Progress = 100;
             }
             catch(Exception ex)
             {
                 this.SF_LblResult = "Error! " + ex.Message;
+                this.SF_Progress = 0;
             }
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+            Mouse.OverrideCursor = null;
         }
 
         private void SF_BwWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -525,7 +528,7 @@ namespace ChecksumVerifier
                 catch (Exception ex)
                 {
                     this.MF_Progress = 0;
-                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+                    Mouse.OverrideCursor = null;
                     MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }//if
@@ -543,7 +546,7 @@ namespace ChecksumVerifier
         private void MF_BwWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             this.MF_Progress = 100;
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+            Mouse.OverrideCursor = null;
             this.MF_ResultList = MF_CalculatedHashList;
         }
 
@@ -729,7 +732,6 @@ namespace ChecksumVerifier
         {
             if (!String.IsNullOrEmpty(this.TS_TxtUserText))
             {
-                this.TS_CalculatedHashList.Clear();
                 try
                 {
                     if (TS_BwWorker == null || !TS_BwWorker.IsBusy)
@@ -738,6 +740,7 @@ namespace ChecksumVerifier
                         {
                             this.TS_Progress = 0;
                             TS_BWProgress = 0;
+                            this.TS_CalculatedHashList.Clear();
                             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
 
                             this.TS_BwWorker.DoWork += new DoWorkEventHandler(TS_BwWorker_DoWork);
@@ -754,7 +757,7 @@ namespace ChecksumVerifier
                 {
                     this.TS_Progress = 0;
                     this.TS_TbResultHash = "Error! " + ex.Message;
-                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+                    Mouse.OverrideCursor = null;
                 }
             }
             else
@@ -796,12 +799,14 @@ namespace ChecksumVerifier
                     }
                 }
                 this.TS_TbResultHash = sbResults.ToString();
+                this.TS_Progress = 100;
             }
             catch(Exception ex)
             {
+                this.TS_Progress = 0;
                 this.TS_TbResultHash = "Error! " + ex.Message;
             }
-            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
+            Mouse.OverrideCursor = null;
         }
 
         void TS_BwWorker_DoWork(object sender, DoWorkEventArgs e)
