@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -21,6 +21,7 @@ namespace ChecksumVerifier
         public ObservableCollection<string> SelectedAlgorithms { get; set; }
         public List<EncodingType> EncodingTypes { get; set; }
         public EncodingType SelectedEncodingType { get; set; }
+        private Stopwatch swElapsedTime;
         #endregion
 
         #region Main Methods
@@ -38,7 +39,53 @@ namespace ChecksumVerifier
                 new EncodingType("UTF32", Encoding.UTF32)
             };
             this.SelectedEncodingType = new EncodingType("Default (System)", Encoding.Default);
+            this.LblResult = "Ready...";
+            this.swElapsedTime = new Stopwatch();
         }//MainViewModel
+        #endregion
+
+        #region Statusbar
+        public int ProcessingProgress
+        {
+            get { return this._processingProgress; }
+            set
+            {
+                if(this._processingProgress != value)
+                {
+                    this._processingProgress = value;
+                    RaisePropertyChanged("ProcessingProgress");
+                }
+            }
+        }//ProcessingProgress
+        private int _processingProgress;
+
+        public string LblResult
+        {
+            get { return this._lblResult; }
+            set
+            {
+                if(this._lblResult != value)
+                {
+                    this._lblResult = value;
+                    RaisePropertyChanged("LblResult");
+                }
+            }
+        }//LblResult
+        private string _lblResult;
+
+        public string ElapsedTime
+        {
+            get { return this._lblElapsedTime; }
+            set
+            {
+                if(this._lblElapsedTime != value)
+                {
+                    this._lblElapsedTime = value;
+                    RaisePropertyChanged("ElapsedTime");
+                }
+            }
+        }//ElapsedTime
+        private string _lblElapsedTime;
         #endregion
 
         #region Single File
@@ -60,7 +107,7 @@ namespace ChecksumVerifier
                 }
             }
         }//TxtUserHash
-        public string _SF_txtUserHash;
+        private string _SF_txtUserHash;
 
         public string SF_TxtFilePath
         {
@@ -74,7 +121,7 @@ namespace ChecksumVerifier
                 }
             }
         }//TxtFilePath
-        public string _SF_txtFilePath;
+        private string _SF_txtFilePath;
 
         public string SF_LblFileSize
         {
@@ -93,7 +140,7 @@ namespace ChecksumVerifier
                 }
             }
         }//LblFileSize
-        public string _SF_lblFileSize;
+        private string _SF_lblFileSize;
 
         public string SF_BtnCompareText
         {
@@ -112,7 +159,7 @@ namespace ChecksumVerifier
                 }
             }
         }//BtnCompareText
-        public string _SF_btnCompareText;
+        private string _SF_btnCompareText;
 
         public string SF_TbFileHash
         {
@@ -126,35 +173,7 @@ namespace ChecksumVerifier
                 }
             }
         }//TbFileHash
-        public string _SF_tbFileHash;
-
-        public string SF_LblResult
-        {
-            get { return _SF_lblResult; }
-            set
-            {
-                if(_SF_lblResult != value)
-                {
-                    _SF_lblResult = value;
-                    RaisePropertyChanged("SF_LblResult");
-                }
-            }
-        }//SF_LblResult
-        public string _SF_lblResult;
-
-        public int SF_Progress
-        {
-            get { return _SF_progress; }
-            set
-            {
-                if(_SF_progress != value)
-                {
-                    _SF_progress = value;
-                    RaisePropertyChanged("SF_Progress");
-                }
-            }
-        }//SF_Progress
-        public int _SF_progress;
+        private string _SF_tbFileHash;
         #endregion
 
         #region SF Browse File
@@ -213,10 +232,12 @@ namespace ChecksumVerifier
                     {
                         using(SF_BwWorker = new BackgroundWorker())
                         {
-                            this.SF_LblResult = "";
+                            this.swElapsedTime = Stopwatch.StartNew();
+                            this.ElapsedTime = String.Empty;
+                            this.LblResult = "Running...";
                             this.SF_CalculatedHashList.Clear();
                             //this.SF_TbFileHash = String.Format("Processing {0} for selected algorithms... Please wait...", this.SF_TxtFilePath);
-                            this.SF_Progress = 0;
+                            this.ProcessingProgress = 0;
                             SF_BWProgress = 0;
                             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
                         
@@ -232,21 +253,23 @@ namespace ChecksumVerifier
                 }
                 catch(Exception ex)
                 {
-                    this.SF_Progress = 0;
-                    this.SF_LblResult = "Error! " + ex.Message;
+                    this.ProcessingProgress = 0;
+                    MessageBox.Show(ex.Message, "Error!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    this.LblResult = "Error!";
                     this.SF_LblFileSize = String.Empty;
                     Mouse.OverrideCursor = null;
                 }
             }//if
             else
             {
-                this.SF_LblResult = "Error!  No file to calculate checksum!";
+                MessageBox.Show("Error!  No file to calculate checksum!", "Error!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                this.LblResult = "Error!";
             }//else
         }
 
         void SF_BwWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            this.SF_Progress = e.ProgressPercentage;
+            this.ProcessingProgress = e.ProgressPercentage;
         }
 
         void SF_BwWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -276,14 +299,17 @@ namespace ChecksumVerifier
                         }
                     }
                 }
-                this.SF_LblResult = "Finished!";
+                this.swElapsedTime.Stop();
+                this.LblResult = "Finished!";
                 this.SF_TbFileHash = sbCompareResults.ToString();
-                this.SF_Progress = 100;
+                this.ProcessingProgress = 100;
+                this.ElapsedTime = String.Format("Elapsed time: {0}", swElapsedTime.Elapsed);
             }
             catch(Exception ex)
             {
-                this.SF_LblResult = "Error! " + ex.Message;
-                this.SF_Progress = 0;
+                MessageBox.Show(ex.Message, "Error!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                this.LblResult = "Error!";
+                this.ProcessingProgress = 0;
             }
             Mouse.OverrideCursor = null;
         }
@@ -324,7 +350,7 @@ namespace ChecksumVerifier
                 }
             }
         }//MF_TxtUserHash
-        public string _MF_txtUserHash;
+        private string _MF_txtUserHash;
 
         public string MF_BtnCompareText
         {
@@ -343,7 +369,7 @@ namespace ChecksumVerifier
                 }
             }
         }
-        public string _MF_btnCompareText;
+        private string _MF_btnCompareText;
 
         public List<string> MF_FileList
         {
@@ -357,7 +383,7 @@ namespace ChecksumVerifier
                 }
             }
         }
-        public List<string> _MF_fileList;
+        private List<string> _MF_fileList;
 
         public List<string> MF_ResultList
         {
@@ -371,21 +397,7 @@ namespace ChecksumVerifier
                 }
             }
         }
-        public List<string> _MF_resultList;
-
-        public int MF_Progress
-        {
-            get { return _MF_progress; }
-            set
-            {
-                if (_MF_progress != value)
-                {
-                    _MF_progress = value;
-                    RaisePropertyChanged("MF_Progress");
-                }
-            }
-        }//MF_Progress
-        public int _MF_progress;
+        private List<string> _MF_resultList;
 
         public int MF_Progress_Max
         {
@@ -399,7 +411,7 @@ namespace ChecksumVerifier
                 }
             }
         }//MF_Progress
-        public int _MF_progress_max;
+        private int _MF_progress_max;
 
         public int MF_SelectedResultIndex
         {
@@ -413,7 +425,7 @@ namespace ChecksumVerifier
                 }
             }
         }//MF_SelectedResultIndex
-        public int _MF_selectedResultIndex;
+        private int _MF_selectedResultIndex;
         #endregion
 
         #region MF Browse File
@@ -510,7 +522,10 @@ namespace ChecksumVerifier
                     {
                         using (MF_BwWorker = new BackgroundWorker())
                         {
-                            this.MF_Progress = 0;
+                            this.swElapsedTime = Stopwatch.StartNew();
+                            this.ElapsedTime = String.Empty;
+                            this.LblResult = "Running...";
+                            this.ProcessingProgress = 0;
                             MF_BWProgress = 0;
                             MF_CalculatedHashList.Clear();
 
@@ -522,32 +537,37 @@ namespace ChecksumVerifier
                             MF_BwWorker.WorkerSupportsCancellation = true;
 
                             MF_BwWorker.RunWorkerAsync();
-                        }
-                    }
-                }
+                        }//using
+                    }//if
+                }//try
                 catch (Exception ex)
                 {
-                    this.MF_Progress = 0;
+                    this.ProcessingProgress = 0;
                     Mouse.OverrideCursor = null;
                     MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                    this.LblResult = "Error!";
+                }//catch
             }//if
             else
             {
                 this.MF_ResultList.Add("Error!  No file(s) to calculate checksum!");
+                this.LblResult = "Error!";
             }//else
-        }
+        }//MF_COmpare
 
         private void MF_BwWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            this.MF_Progress = e.ProgressPercentage;
+            this.ProcessingProgress = e.ProgressPercentage;
         }
 
         private void MF_BwWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            this.MF_Progress = 100;
+            this.swElapsedTime.Stop();
+            this.ProcessingProgress = 100;
             Mouse.OverrideCursor = null;
             this.MF_ResultList = MF_CalculatedHashList;
+            this.ElapsedTime = String.Format("Elapsed time: {0}", swElapsedTime.Elapsed);
+            this.LblResult = "Finished!";
         }
 
         private void MF_BwWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -647,7 +667,7 @@ namespace ChecksumVerifier
                 }
             }
         }
-        public string _TS_txtUserText;
+        private string _TS_txtUserText;
 
         public string TS_TxtUserHash
         {
@@ -661,7 +681,7 @@ namespace ChecksumVerifier
                 }
             }
         }
-        public string _TS_txtUserHash;
+        private string _TS_txtUserHash;
 
         public string TS_BtnCompareText
         {
@@ -680,7 +700,7 @@ namespace ChecksumVerifier
                 }
             }
         }//BtnCompareText
-        public string _TS_btnCompareText;
+        private string _TS_btnCompareText;
 
         public string TS_TbResultHash
         {
@@ -694,7 +714,7 @@ namespace ChecksumVerifier
                 }
             }
         }
-        public string _TS_tbResultHash;
+        private string _TS_tbResultHash;
 
         public int TS_Progress
         {
@@ -708,7 +728,7 @@ namespace ChecksumVerifier
                 }
             }
         }//TS_Progress
-        public int _TS_progress;
+        private int _TS_progress;
         #endregion
 
         #region Text - Single Compare
@@ -738,7 +758,10 @@ namespace ChecksumVerifier
                     {
                         using (TS_BwWorker = new BackgroundWorker())
                         {
-                            this.TS_Progress = 0;
+                            this.swElapsedTime = Stopwatch.StartNew();
+                            this.ElapsedTime = String.Empty;
+                            this.LblResult = "Running...";
+                            this.ProcessingProgress = 0;
                             TS_BWProgress = 0;
                             this.TS_CalculatedHashList.Clear();
                             Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
@@ -755,20 +778,22 @@ namespace ChecksumVerifier
                 }
                 catch (Exception ex)
                 {
-                    this.TS_Progress = 0;
+                    this.ProcessingProgress = 0;
                     this.TS_TbResultHash = "Error! " + ex.Message;
+                    this.LblResult = "Error!";
                     Mouse.OverrideCursor = null;
                 }
             }
             else
             {
                 this.TS_TbResultHash = "No input string given!";
+                this.LblResult = "Error!";
             }
         }
 
         void TS_BwWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            this.TS_Progress = e.ProgressPercentage;
+            this.ProcessingProgress = e.ProgressPercentage;
         }
 
         void TS_BwWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -798,13 +823,17 @@ namespace ChecksumVerifier
                         }
                     }
                 }
+                this.swElapsedTime.Stop();
                 this.TS_TbResultHash = sbResults.ToString();
-                this.TS_Progress = 100;
+                this.ProcessingProgress = 100;
+                this.LblResult = "Finished!";
+                this.ElapsedTime = String.Format("Elapsed time: {0}", swElapsedTime.Elapsed);
             }
             catch(Exception ex)
             {
-                this.TS_Progress = 0;
+                this.ProcessingProgress = 0;
                 this.TS_TbResultHash = "Error! " + ex.Message;
+                this.LblResult = "Error!";
             }
             Mouse.OverrideCursor = null;
         }
@@ -818,8 +847,6 @@ namespace ChecksumVerifier
                 this.TS_BwWorker.ReportProgress(TS_BWProgress);
             }
         }
-
-
         #endregion
         #endregion
     }

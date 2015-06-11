@@ -1,20 +1,9 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Xceed.Wpf.Toolkit;
 
 namespace ChecksumVerifier
 {
@@ -32,7 +21,7 @@ namespace ChecksumVerifier
         {
             InitializeComponent();
             this.SF_rtbFileHash.TargetUpdated += SF_rtbFileHash_TargetUpdated;
-            this.SF_lblResult.TargetUpdated += SF_lblResult_TargetUpdated;
+            this.lblResult.TargetUpdated += SF_lblResult_TargetUpdated;
             this.TS_rtbFileHash.TargetUpdated += TS_rtbFileHash_TargetUpdated;
 
             this.vm = new MainViewModel();
@@ -40,8 +29,35 @@ namespace ChecksumVerifier
             vm.MF_Progress_Max = 1;
             this.TS_cbEncodingType.SelectedIndex = 0;
         }
+        #endregion
 
+        #region Statusbar Events
+        void SF_lblResult_TargetUpdated(object sender, DataTransferEventArgs e)
+        {
+            e.Handled = SF_HandleResultColor();
+        }
 
+        private bool SF_HandleResultColor()
+        {
+            if (this.lblResult.Content != null && !String.IsNullOrEmpty(this.lblResult.Content.ToString()))
+            {
+                string resultString = this.lblResult.Content.ToString();
+                if (resultString.Contains("Error"))
+                {
+                    this.lblResult.Foreground = Brushes.Red;
+                }
+                else if(resultString.Contains("Finished"))
+                {
+                    this.lblResult.Foreground = Brushes.Green;
+                }
+                else
+                {
+                    this.lblResult.Foreground = Brushes.Black;
+                }
+                return true;
+            }
+            return false;
+        }
         #endregion
 
         #region Single File Events
@@ -52,30 +68,6 @@ namespace ChecksumVerifier
                 e.Handled = SF_HandleColorOnText();
             }
         }
-
-        void SF_lblResult_TargetUpdated(object sender, DataTransferEventArgs e)
-        {
-            e.Handled = SF_HandleResultColor();
-        }
-
-        private bool SF_HandleResultColor()
-        {
-            if(this.SF_lblResult.Content != null && !String.IsNullOrEmpty(this.SF_lblResult.Content.ToString()))
-            {
-                string resultString = this.SF_lblResult.Content.ToString();
-                if(resultString.Substring(0, 6).Equals("Error!"))
-                {
-                    this.SF_lblResult.Foreground = Brushes.Red;
-                }
-                else
-                {
-                    this.SF_lblResult.Foreground = Brushes.Green;
-                }
-                return true;
-            }
-            return false;
-        }
-
 
         private bool SF_HandleColorOnText()
         {

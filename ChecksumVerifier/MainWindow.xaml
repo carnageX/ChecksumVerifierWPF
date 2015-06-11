@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:dz="http://schemas.devzest.com/presentation"
-        Title="Checksum Verifier Utility" Height="356" Width="623" MinHeight="356" MinWidth="623" Icon="icon.ico">
+        Title="Checksum Verifier Utility" Height="386" Width="623" MinHeight="356" MinWidth="623" Icon="icon.ico">
     <Grid>
         <Grid.Background>
             <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}"/>
@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="45"/>
             <RowDefinition Height="120*"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -28,7 +29,7 @@
                                     Delimiter="+" Height="25" Margin="130,5,5,5" Grid.ColumnSpan="2" MaxDropDownHeight="150" TabIndex="0"/>
             </Grid>
         </Grid>
-        <TabControl Grid.Row="1" Margin="5,0,5,10" Background="#FFE5E5E5">
+        <TabControl Grid.Row="1" Margin="5,7,5,0" Background="#FFE5E5E5">
             <TabItem x:Name="tabSF" Header="Single File" TabIndex="1">
                 <Grid Background="#FFE5E5E5">
                     <Grid.RowDefinitions>
@@ -36,7 +37,6 @@
                         <RowDefinition Height="32"/>
                         <RowDefinition Height="32"/>
                         <RowDefinition Height="130*"/>
-                        <RowDefinition Height="30"/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
@@ -58,7 +58,6 @@
                         <TextBox x:Name="SF_txtUserHash" Grid.Column="1" Text="{Binding SF_TxtUserHash}" MinWidth="495" Margin="0,3,79,0" Grid.ColumnSpan="2" Height="25" VerticalAlignment="Top" TextChanged="SF_txtUserHash_TextChanged" Cursor="IBeam" ForceCursor="True" TabIndex="6"/>
                         <Button x:Name="SF_btnCompare" Content="{Binding SF_BtnCompareText}" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Width="74" Command="{Binding SF_CmdCompare}" Height="25" Margin="0,3,3,0" TabIndex="7" />
                     </Grid>
-
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="300*"/>
@@ -78,14 +77,6 @@
                                 </Paragraph>
                             </FlowDocument>
                         </RichTextBox>
-                    </Grid>
-                    <Grid Grid.Row="4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="484*"/>
-                            <ColumnDefinition Width="115*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label x:Name="SF_lblResult" Grid.Column="0" Content="{Binding SF_LblResult, NotifyOnTargetUpdated=True}" VerticalAlignment="Top" Height="30" Margin="0,0,4,-4"/>
-                        <ProgressBar Grid.Column="1" Value="{Binding SF_Progress}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="100" Height="10" Margin="0,0,5,0" />
                     </Grid>
                 </Grid>
             </TabItem>
@@ -126,7 +117,6 @@
                                 <Button Grid.Row="0" Command="{Binding MF_CmdBrowse}" Content="Browse..." Width="75" MinWidth="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top" TabIndex="10" />
                                 <Button x:Name="MF_btnCompare" Grid.Row="1" Command="{Binding MF_CmdCompare}" Content="{Binding MF_BtnCompareText}" Width="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top" TabIndex="11" />
                                 <Button Grid.Row="2" Command="{Binding MF_CmdExport}" Content="Export..." Width="75" Height="25" HorizontalAlignment="Center" VerticalAlignment="Top" TabIndex="12" />
-                                <ProgressBar Grid.Row="3" Value="{Binding MF_Progress}" Width="75" Height="10" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,5" />
                             </Grid>
                             <ListBox x:Name="MF_LbResults" Grid.Column="1" ItemsSource="{Binding MF_ResultList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnTargetUpdated=True}" MinWidth="210" Margin="5" Background="#FFE5E5E5" BorderThickness="2,2,1,1" SelectionChanged="MF_LbResults_SelectionChanged" TabIndex="13"  >
                                 <ListBox.ContextMenu>
@@ -174,7 +164,6 @@
                         <Label Grid.Column="0" Content="Encoding Type: " VerticalAlignment="Center" HorizontalAlignment="Left" Height="26" Width="94"></Label>
                         <ComboBox x:Name="TS_cbEncodingType" Grid.Column="1" Height="26" HorizontalAlignment="Left" Width="200" ItemsSource="{Binding EncodingTypes}" DisplayMemberPath="Name" SelectedValuePath="Type" SelectedItem="{Binding SelectedEncodingType}" MaxDropDownHeight="150" TabIndex="16" />
                         <Button x:Name="TS_btnCompare" Content="{Binding TS_BtnCompareText}" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Width="90" Command="{Binding TS_CmdCompare}" Height="26" TabIndex="17"/>
-                        <ProgressBar Grid.Column="3" Value="{Binding TS_Progress}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="100" Height="10" Margin="5"/>
                     </Grid>
                     <RichTextBox x:Name="TS_rtbFileHash" Grid.Row="3" IsReadOnly="True" Background="#FFE5E5E5" Margin="5" BorderThickness="2,2,1,1" IsReadOnlyCaretVisible="True" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto">
                         <FlowDocument>
@@ -186,5 +175,31 @@
                 </Grid>
             </TabItem>
         </TabControl>
+        <StatusBar Grid.Row="2" VerticalAlignment="Top" Height="30" BorderThickness="0,1,0,0" BorderBrush="Black">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="150*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="115"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem Grid.Column="0">
+                <Label x:Name="lblResult" Grid.Column="0" Content="{Binding LblResult, NotifyOnTargetUpdated=True}" HorizontalAlignment="Left" VerticalAlignment="Center" Height="30" />
+            </StatusBarItem>
+            <Separator Grid.Column="1"/>
+            <StatusBarItem Grid.Column="2">
+                <Label Content="{Binding ElapsedTime}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            </StatusBarItem>
+            <Separator Grid.Column="3"/>
+            <StatusBarItem Grid.Column="4">
+                <ProgressBar Grid.Column="1" Value="{Binding ProcessingProgress}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="100" Height="15" Margin="3,0" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>
