@@ -19,7 +19,7 @@ Warranty
 ====================================================================
 Details & Usage
 ====================================================================
-Built on .NET Framework 4.0
+Built on .NET Framework 4.5
 
 Supported Checksum Algorithms: 
 	MD5, MD5-CNG
