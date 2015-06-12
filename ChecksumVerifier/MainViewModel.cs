@@ -11,6 +11,8 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace ChecksumVerifier
 {
@@ -40,6 +42,7 @@ namespace ChecksumVerifier
             };
             this.SelectedEncodingType = new EncodingType("Default (System)", Encoding.Default);
             this.LblResult = "Ready...";
+            this.StatusImage = imageReady;
             this.swElapsedTime = new Stopwatch();
         }//MainViewModel
         #endregion
@@ -72,6 +75,25 @@ namespace ChecksumVerifier
             }
         }//LblResult
         private string _lblResult;
+
+        private BitmapImage imageReady = new BitmapImage(new Uri("/ChecksumVerifier;component/Resources/status_grey.png", UriKind.Relative));
+        private BitmapImage imageFinished = new BitmapImage(new Uri("/ChecksumVerifier;component/Resources/status_green.png", UriKind.Relative));
+        private BitmapImage imageError = new BitmapImage(new Uri("/ChecksumVerifier;component/Resources/status_red.png", UriKind.Relative));
+        private BitmapImage imageRunning = new BitmapImage(new Uri("/ChecksumVerifier;component/Resources/status_yellow.png", UriKind.Relative));
+
+        public BitmapImage StatusImage
+        {
+            get { return this._statusImage; }
+            set 
+            { 
+                if(this._statusImage != value)
+                {
+                    _statusImage = value;
+                    RaisePropertyChanged("StatusImage");
+                }
+            }
+        }
+        private BitmapImage _statusImage;
 
         public string ElapsedTime
         {
@@ -235,6 +257,7 @@ namespace ChecksumVerifier
                             this.swElapsedTime = Stopwatch.StartNew();
                             this.ElapsedTime = String.Empty;
                             this.LblResult = "Running...";
+                            this.StatusImage = imageRunning;
                             this.SF_CalculatedHashList.Clear();
                             //this.SF_TbFileHash = String.Format("Processing {0} for selected algorithms... Please wait...", this.SF_TxtFilePath);
                             this.ProcessingProgress = 0;
@@ -256,6 +279,7 @@ namespace ChecksumVerifier
                     this.ProcessingProgress = 0;
                     MessageBox.Show(ex.Message, "Error!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     this.LblResult = "Error!";
+                    this.StatusImage = imageError;
                     this.SF_LblFileSize = String.Empty;
                     Mouse.OverrideCursor = null;
                 }
@@ -264,6 +288,7 @@ namespace ChecksumVerifier
             {
                 MessageBox.Show("Error!  No file to calculate checksum!", "Error!", MessageBoxButton.OK, MessageBoxImage.Warning);
                 this.LblResult = "Error!";
+                this.StatusImage = imageError;
             }//else
         }
 
@@ -301,6 +326,7 @@ namespace ChecksumVerifier
                 }
                 this.swElapsedTime.Stop();
                 this.LblResult = "Finished!";
+                this.StatusImage = imageFinished;
                 this.SF_TbFileHash = sbCompareResults.ToString();
                 this.ProcessingProgress = 100;
                 this.ElapsedTime = String.Format("Elapsed time: {0}", swElapsedTime.Elapsed);
@@ -309,6 +335,7 @@ namespace ChecksumVerifier
             {
                 MessageBox.Show(ex.Message, "Error!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 this.LblResult = "Error!";
+                this.StatusImage = imageError;
                 this.ProcessingProgress = 0;
             }
             Mouse.OverrideCursor = null;
@@ -525,6 +552,7 @@ namespace ChecksumVerifier
                             this.swElapsedTime = Stopwatch.StartNew();
                             this.ElapsedTime = String.Empty;
                             this.LblResult = "Running...";
+                            this.StatusImage = imageRunning;
                             this.ProcessingProgress = 0;
                             MF_BWProgress = 0;
                             MF_CalculatedHashList.Clear();
@@ -546,12 +574,14 @@ namespace ChecksumVerifier
                     Mouse.OverrideCursor = null;
                     MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     this.LblResult = "Error!";
+                    this.StatusImage = imageError;
                 }//catch
             }//if
             else
             {
                 this.MF_ResultList.Add("Error!  No file(s) to calculate checksum!");
                 this.LblResult = "Error!";
+                this.StatusImage = imageError;
             }//else
         }//MF_COmpare
 
@@ -568,6 +598,7 @@ namespace ChecksumVerifier
             this.MF_ResultList = MF_CalculatedHashList;
             this.ElapsedTime = String.Format("Elapsed time: {0}", swElapsedTime.Elapsed);
             this.LblResult = "Finished!";
+            this.StatusImage = imageFinished;
         }
 
         private void MF_BwWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -761,6 +792,7 @@ namespace ChecksumVerifier
                             this.swElapsedTime = Stopwatch.StartNew();
                             this.ElapsedTime = String.Empty;
                             this.LblResult = "Running...";
+                            this.StatusImage = imageRunning;
                             this.ProcessingProgress = 0;
                             TS_BWProgress = 0;
                             this.TS_CalculatedHashList.Clear();
@@ -781,6 +813,7 @@ namespace ChecksumVerifier
                     this.ProcessingProgress = 0;
                     this.TS_TbResultHash = "Error! " + ex.Message;
                     this.LblResult = "Error!";
+                    this.StatusImage = imageError;
                     Mouse.OverrideCursor = null;
                 }
             }
@@ -788,6 +821,7 @@ namespace ChecksumVerifier
             {
                 this.TS_TbResultHash = "No input string given!";
                 this.LblResult = "Error!";
+                this.StatusImage = imageError;
             }
         }
 
@@ -827,6 +861,7 @@ namespace ChecksumVerifier
                 this.TS_TbResultHash = sbResults.ToString();
                 this.ProcessingProgress = 100;
                 this.LblResult = "Finished!";
+                this.StatusImage = imageFinished;
                 this.ElapsedTime = String.Format("Elapsed time: {0}", swElapsedTime.Elapsed);
             }
             catch(Exception ex)
@@ -834,6 +869,7 @@ namespace ChecksumVerifier
                 this.ProcessingProgress = 0;
                 this.TS_TbResultHash = "Error! " + ex.Message;
                 this.LblResult = "Error!";
+                this.StatusImage = imageError;
             }
             Mouse.OverrideCursor = null;
         }
