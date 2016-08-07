@@ -13,7 +13,7 @@ namespace ChecksumVerifier
         /// <param name="filename">File path and name to generate checksum.</param>
         /// <param name="hashOption">Checksum Algorithm.  Options are: MD5, SHA-1, SHA-256, SHA-384, and SHA-512</param>
         /// <returns>Hash string to be returned.</returns>
-        public static string GetHash(string filename, string hashOption)
+        public static string GetHash(string filename, HashOption hashOption)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace ChecksumVerifier
             }//catch
         }//GetHash
 
-        public static string GetHash(string clearText, string hashOption, Encoding encodingType)
+        public static string GetHash(string clearText, HashOption hashOption, Encoding encodingType)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace ChecksumVerifier
         /// <param name="filename">File path and name to generate checksum.</param>
         /// <param name="hashOption">Checksum Algorithm.  Options are: MD5, SHA-1, SHA-256, SHA-384, and SHA-512</param>
         /// <returns>Hash string to be returned.</returns>
-        public static string GetHash_Threaded(string filename, string hashOption, int threadCount)
+        public static string GetHash_Threaded(string filename, HashOption hashOption, int threadCount)
         {
             try
             {
@@ -57,14 +57,14 @@ namespace ChecksumVerifier
         /// <param name="filename">File path and name to generate checksum.</param>
         /// <param name="hashOption">List of Checksum Algorithms.  Options are: MD5, SHA-1, SHA-256, SHA-384, and SHA-512</param>
         /// <returns>List of hash strings to be returned.</returns>
-        public static List<string> GetHash(string filename, List<string> hashOption)
+        public static List<string> GetHash(string filename, List<HashOption> hashOption)
         {
             List<string> returnHashes = new List<string>();
             try
             {
-                foreach (var s in hashOption)
+                foreach (var h in hashOption)
                 {
-                    returnHashes.Add(ComputeHashAlgorithm(filename, s));
+                    returnHashes.Add(ComputeHashAlgorithm(filename, h));
                 }//foreach
             }//try
             catch
@@ -78,14 +78,14 @@ namespace ChecksumVerifier
         /// <param name="filename">File path and name to generate checksum.</param>
         /// <param name="hashOption">List of Checksum Algorithms.  Options are: MD5, SHA-1, SHA-256, SHA-384, and SHA-512</param>
         /// <returns>List of hash strings to be returned.</returns>
-        public static List<string> GetHash_Threaded(string filename, List<string> hashOption, int threadCount)
+        public static List<string> GetHash_Threaded(string filename, List<HashOption> hashOption, int threadCount)
         {
             List<string> returnHashes = new List<string>();
             try
             {
-                foreach (var s in hashOption)
+                foreach (var h in hashOption)
                 {
-                    returnHashes.Add(ComputeHashAlgorithm(filename, s));
+                    returnHashes.Add(ComputeHashAlgorithm(filename, h));
                 }//foreach
             }//try
             catch
@@ -109,77 +109,65 @@ namespace ChecksumVerifier
         /// Managed implementations use the Managed code libraries, and are non-FIPS certified (may also be slower).
         /// CNG (Cryptography Next Generation) are newer implementations by Microsoft with Win2k8/Vista and newer, which is also FIPS certified.
         /// Source: http://codeissue.com/issues/i34dda6deaad90a/difference-between-sha1-sha1cryptoserviceprovider-sha1managed-and-sha1cng </remarks>
-        private static string ComputeHashAlgorithm(string filename, string hashOption)
+        private static string ComputeHashAlgorithm(string filename, HashOption hashOption)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if(hashOption.Contains("md5"))
+            switch(hashOption)
             {
-                computedHash = ComputeMD5Algorithm(filename, hashOption);
-            }//if
-            else if (hashOption.Contains("sha-1"))
-            {
-                computedHash = ComputeSHA1Algorithm(filename, hashOption);
-            }//else if
-            else if (hashOption.Contains("sha-256"))
-            {
-                computedHash = ComputeSHA256Algorithm(filename, hashOption);
-            }//else if
-            else if (hashOption.Contains("sha-384"))
-            {
-                computedHash = ComputeSHA384Algorithm(filename, hashOption);
-            }//else if
-            else if (hashOption.Contains("sha-512"))
-            {
-                computedHash = ComputeSHA512Algorithm(filename, hashOption);
-            }//else if
-            else if (hashOption.Contains("ripemd160"))
-            {
-                computedHash = ComputeRIPEMD160Algorithm(filename, hashOption);
-            }//else if
-            else if (hashOption == "crc16")
-            {
-                CRC16 crc16Checksum = new CRC16();
-                using (FileStream fs = File.Open(filename, FileMode.Open))
-                {
-                    foreach (byte b in crc16Checksum.ComputeHash(fs))
-                    {
-                        computedHash = computedHash.Insert(0, b.ToString("x2").ToLower());
-                    }//foreach
-                }//using
-                //throws arithmetic overflow when choosing crc16
-            }//else if
-            else if (hashOption == "crc32")
-            {
-                CRC32 crc32Checksum = new CRC32();
-                using (FileStream fs = File.Open(filename, FileMode.Open))
-                {
-                    foreach (byte b in crc32Checksum.ComputeHash(fs))
-                    {
-                        computedHash = computedHash.Insert(0, b.ToString("x2").ToLower());
-                    }//foreach
-                }//using
-            }//else if
-            else
-            {
-                computedHash = "Not a valid algorithm option!";
-            }//else
+                case HashOption.MD5:
+                case HashOption.MD5CNG:
+                    computedHash = ComputeMD5Algorithm(filename, hashOption);
+                    break;
+                case HashOption.SHA1:
+                case HashOption.SHA1CNG:
+                case HashOption.SHA1Managed:
+                    computedHash = ComputeSHA1Algorithm(filename, hashOption);
+                    break;
+                case HashOption.SHA256:
+                case HashOption.SHA256CNG:
+                case HashOption.SHA256Managed:
+                    computedHash = ComputeSHA256Algorithm(filename, hashOption);
+                    break;
+                case HashOption.SHA384:
+                case HashOption.SHA384CNG:
+                case HashOption.SHA384Managed:
+                    computedHash = ComputeSHA384Algorithm(filename, hashOption);
+                    break;
+                case HashOption.SHA512:
+                case HashOption.SHA512CNG:
+                case HashOption.SHA512Managed:
+                    computedHash = ComputeSHA512Algorithm(filename, hashOption);
+                    break;
+                case HashOption.RIPEMD160:
+                case HashOption.RIPEMD160Managed:
+                    computedHash = ComputeRIPEMD160Algorithm(filename, hashOption);
+                    break;
+                case HashOption.CRC16:
+                    computedHash = ComputeCrc16Algorithm(filename);
+                    break;
+                case HashOption.CRC32:
+                    computedHash = ComputeCrc32Algorithm(filename);
+                    break;
+                default:
+                    computedHash = "Not a valid algorithm option!";
+                    break;
+            }
+
             return computedHash;
         }//ComputeHashAlgorithm
 
-        /// <summary>Computed the selected MD5 hash for the given file. 
+        /// <summary>Computes the selected MD5 hash for the given file. 
         /// </summary>
         /// <param name="filename">File to read</param>
         /// <param name="hashOption">MD5 algorithm to generate checksum. 
         /// Options are: "MD5" (using CryptoServiceProvider) or "MD5-CNG"</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeMD5Algorithm(string filename, string hashOption)
+        private static string ComputeMD5Algorithm(string filename, HashOption hashOption)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "md5")
+            if (hashOption == HashOption.MD5)
             {
                 MD5 md5Checksum = MD5.Create();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -187,7 +175,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(md5Checksum.ComputeHash(fs));
                 }//using
             }//if
-            else if (hashOption == "md5-cng")
+            else if (hashOption == HashOption.MD5CNG)
             {
                 MD5Cng md5CNGChecksum = new MD5Cng();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -203,18 +191,17 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected SHA-1 hash for the given file. 
+        /// <summary>Computes the selected SHA-1 hash for the given file. 
         /// </summary>
         /// <param name="filename">File to read</param>
         /// <param name="hashOption">SHA-1 algorithm to generate checksum. 
         /// Options are: "SHA-1" (using CryptoServiceProvider), "SHA-1-Managed", or "SHA-1-CNG"</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeSHA1Algorithm(string filename, string hashOption)
+        private static string ComputeSHA1Algorithm(string filename, HashOption hashOption)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "sha-1")
+            if (hashOption == HashOption.SHA1)
             {
                 SHA1 sha1Checksum = SHA1.Create();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -222,7 +209,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(sha1Checksum.ComputeHash(fs));
                 }//using 
             }//else if
-            else if (hashOption == "sha-1-managed")
+            else if (hashOption == HashOption.SHA1Managed)
             {
                 SHA1Managed sha1MngChecksum = new SHA1Managed();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -230,7 +217,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(sha1MngChecksum.ComputeHash(fs));
                 }//using
             }
-            else if (hashOption == "sha-1-cng")
+            else if (hashOption == HashOption.SHA1CNG)
             {
                 SHA1Cng sha1CNGChecksum = new SHA1Cng();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -246,18 +233,17 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected SHA-256 hash for the given file. 
+        /// <summary>Computes the selected SHA-256 hash for the given file. 
         /// </summary>
         /// <param name="filename">File to read</param>
         /// <param name="hashOption">SHA-256 algorithm to generate checksum. 
         /// Options are: "SHA-256" (using CryptoServiceProvider), "SHA-256-Managed", or "SHA-256-CNG"</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeSHA256Algorithm(string filename, string hashOption)
+        private static string ComputeSHA256Algorithm(string filename, HashOption hashOption)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "sha-256")
+            if (hashOption == HashOption.SHA256)
             {
                 SHA256 sha256Checksum = SHA256.Create();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -265,7 +251,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(sha256Checksum.ComputeHash(fs));
                 }//using 
             }//else if
-            else if (hashOption == "sha-256-managed")
+            else if (hashOption == HashOption.SHA256Managed)
             {
                 SHA256Managed sha256MngChecksum = new SHA256Managed();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -273,7 +259,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(sha256MngChecksum.ComputeHash(fs));
                 }//using
             }
-            else if (hashOption == "sha-256-cng")
+            else if (hashOption == HashOption.SHA256CNG)
             {
                 SHA256Cng sha256CNGChecksum = new SHA256Cng();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -289,18 +275,17 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected SHA-384 hash for the given file. 
+        /// <summary>Computes the selected SHA-384 hash for the given file. 
         /// </summary>
         /// <param name="filename">File to read</param>
         /// <param name="hashOption">SHA-384 algorithm to generate checksum. 
         /// Options are: "SHA-384" (using CryptoServiceProvider), "SHA-384-Managed", or "SHA-384-CNG"</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeSHA384Algorithm(string filename, string hashOption)
+        private static string ComputeSHA384Algorithm(string filename, HashOption hashOption)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "sha-384")
+            if (hashOption == HashOption.SHA384)
             {
                 SHA384 sha384Checksum = SHA384.Create();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -308,7 +293,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(sha384Checksum.ComputeHash(fs));
                 }//using 
             }//else if
-            else if (hashOption == "sha-384-managed")
+            else if (hashOption == HashOption.SHA384Managed)
             {
                 SHA384Managed sha384MngChecksum = new SHA384Managed();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -316,7 +301,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(sha384MngChecksum.ComputeHash(fs));
                 }//using
             }
-            else if (hashOption == "sha-384-cng")
+            else if (hashOption == HashOption.SHA384CNG)
             {
                 SHA384Cng sha384CNGChecksum = new SHA384Cng();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -332,18 +317,17 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected SHA-512 hash for the given file. 
+        /// <summary>Computes the selected SHA-512 hash for the given file. 
         /// </summary>
         /// <param name="filename">File to read</param>
         /// <param name="hashOption">SHA-512 algorithm to generate checksum. 
         /// Options are: "SHA-512" (using CryptoServiceProvider), "SHA-512-Managed", or "SHA-512-CNG"</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeSHA512Algorithm(string filename, string hashOption)
+        private static string ComputeSHA512Algorithm(string filename, HashOption hashOption)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "sha-512")
+            if (hashOption == HashOption.SHA512)
             {
                 SHA512 sha512Checksum = SHA512.Create();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -351,7 +335,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(sha512Checksum.ComputeHash(fs));
                 }//using 
             }//else if
-            else if (hashOption == "sha-512-managed")
+            else if (hashOption == HashOption.SHA512Managed)
             {
                 SHA512Managed sha512MngChecksum = new SHA512Managed();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -359,7 +343,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(sha512MngChecksum.ComputeHash(fs));
                 }//using
             }
-            else if (hashOption == "sha-512-cng")
+            else if (hashOption == HashOption.SHA512CNG)
             {
                 SHA512Cng sha512CNGChecksum = new SHA512Cng();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -375,18 +359,17 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected RIPEMD160 hash for the given file. 
+        /// <summary>Computes the selected RIPEMD160 hash for the given file. 
         /// </summary>
         /// <param name="filename">File to read</param>
         /// <param name="hashOption">RIPEMD160 algorithm to generate checksum. 
         /// Options are: "RIPEMD160" (using CryptoServiceProvider) or "RIPEMD160-Managed"</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeRIPEMD160Algorithm(string filename, string hashOption)
+        private static string ComputeRIPEMD160Algorithm(string filename, HashOption hashOption)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "ripemd160")
+            if (hashOption == HashOption.RIPEMD160)
             {
                 RIPEMD160 ripemd160Checksum = RIPEMD160.Create();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -394,7 +377,7 @@ namespace ChecksumVerifier
                     computedHash = FormatHashChecksum(ripemd160Checksum.ComputeHash(fs));
                 }//using
             }//else if
-            else if (hashOption == "ripemd160-managed")
+            else if (hashOption == HashOption.RIPEMD160Managed)
             {
                 RIPEMD160Managed ripemd160MgChecksum = new RIPEMD160Managed();
                 using (FileStream fs = File.Open(filename, FileMode.Open))
@@ -407,6 +390,43 @@ namespace ChecksumVerifier
                 computedHash = "Not a valid algorithm option!";
             }//else
 
+            return computedHash;
+        }
+
+        /// <summary>Computes the selected CRC16 hash for the given file.
+        /// </summary>
+        /// <param name="filename">File to read</param>
+        /// <returns>Computed hash</returns>
+        private static string ComputeCrc16Algorithm(string filename)
+        {
+            string computedHash = String.Empty;
+            CRC16 crc16Checksum = new CRC16();
+            using (FileStream fs = File.Open(filename, FileMode.Open))
+            {
+                foreach (byte b in crc16Checksum.ComputeHash(fs))
+                {
+                    computedHash = computedHash.Insert(0, b.ToString("x2").ToLower());
+                }//foreach
+            }//using
+             //throws arithmetic overflow when choosing crc16
+            return computedHash;
+        }
+
+        /// <summary>Computes the selected CRC32 hash for the given file.
+        /// </summary>
+        /// <param name="filename">File to read</param>
+        /// <returns>Computed hash</returns>
+        private static string ComputeCrc32Algorithm(string filename)
+        {
+            string computedHash = String.Empty;
+            CRC32 crc32Checksum = new CRC32();
+            using (FileStream fs = File.Open(filename, FileMode.Open))
+            {
+                foreach (byte b in crc32Checksum.ComputeHash(fs))
+                {
+                    computedHash = computedHash.Insert(0, b.ToString("x2").ToLower());
+                }//foreach
+            }//using
             return computedHash;
         }
         #endregion
@@ -426,81 +446,71 @@ namespace ChecksumVerifier
         /// Managed implementations use the Managed code libraries, and are non-FIPS certified (may also be slower).
         /// CNG (Cryptography Next Generation) are newer implementations by Microsoft with Win2k8/Vista and newer, which is also FIPS certified.
         /// Source: http://codeissue.com/issues/i34dda6deaad90a/difference-between-sha1-sha1cryptoserviceprovider-sha1managed-and-sha1cng </remarks>
-        private static string ComputeHashAlgorithm(string clearText, string hashOption, System.Text.Encoding encodingType)
+        private static string ComputeHashAlgorithm(string clearText, HashOption hashOption, Encoding encodingType)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
             byte[] stringBytes = encodingType.GetBytes(clearText);
 
-            if (hashOption.Contains("md5"))
+            switch (hashOption)
             {
-                computedHash = ComputeMD5Algorithm(hashOption, stringBytes);
-            }//if
-            else if (hashOption.Contains("sha-1"))
-            {
-                computedHash = ComputeSHA1Algorithm(hashOption, stringBytes);
-            }//else if
-            else if (hashOption.Contains("sha-256"))
-            {
-                computedHash = ComputeSHA256Algorithm(hashOption, stringBytes);
-            }//else if
-            else if (hashOption.Contains("sha-384"))
-            {
-                computedHash = ComputeSHA384Algorithm(hashOption, stringBytes);
-            }//else if
-            else if (hashOption.Contains("sha-512"))
-            {
-                computedHash = ComputeSHA512Algorithm(hashOption, stringBytes);
-            }//else if
-            else if (hashOption.Contains("ripemd160"))
-            {
-                computedHash = ComputeRIPEMD160Algorithm(hashOption, stringBytes);
-            }//else if
-            else if (hashOption == "crc16")
-            {
-                CRC16 crc16Checksum = new CRC16();
-                
-                    foreach (byte b in crc16Checksum.ComputeHash(stringBytes))
-                    {
-                        computedHash = computedHash.Insert(0, b.ToString("x2").ToLower());
-                    }//foreach
+                case HashOption.MD5:
+                case HashOption.MD5CNG:
+                    computedHash = ComputeMD5Algorithm(hashOption, stringBytes);
+                    break;
+                case HashOption.SHA1:
+                case HashOption.SHA1CNG:
+                case HashOption.SHA1Managed:
+                    computedHash = ComputeSHA1Algorithm(hashOption, stringBytes);
+                    break;
+                case HashOption.SHA256:
+                case HashOption.SHA256CNG:
+                case HashOption.SHA256Managed:
+                    computedHash = ComputeSHA256Algorithm(hashOption, stringBytes);
+                    break;
+                case HashOption.SHA384:
+                case HashOption.SHA384CNG:
+                case HashOption.SHA384Managed:
+                    computedHash = ComputeSHA384Algorithm(hashOption, stringBytes);
+                    break;
+                case HashOption.SHA512:
+                case HashOption.SHA512CNG:
+                case HashOption.SHA512Managed:
+                    computedHash = ComputeSHA512Algorithm(hashOption, stringBytes);
+                    break;
+                case HashOption.RIPEMD160:
+                case HashOption.RIPEMD160Managed:
+                    computedHash = ComputeRIPEMD160Algorithm(hashOption, stringBytes);
+                    break;
+                case HashOption.CRC16:
+                    computedHash = ComputeCrc16Algorithm(stringBytes);
+                    break;
+                case HashOption.CRC32:
+                    computedHash = ComputeCrc32Algorithm(stringBytes);
+                    break;
+                default:
+                    computedHash = "Not a valid algorithm option!";
+                    break;
+            }
 
-                //throws arithmetic overflow when choosing crc16
-            }//else if
-            else if (hashOption == "crc32")
-            {
-                CRC32 crc32Checksum = new CRC32();
-
-                    foreach (byte b in crc32Checksum.ComputeHash(stringBytes))
-                    {
-                        computedHash = computedHash.Insert(0, b.ToString("x2").ToLower());
-                    }//foreach
-
-            }//else if
-            else
-            {
-                computedHash = "Not a valid algorithm option!";
-            }//else
             return computedHash;
         }//ComputeHashAlgorithm
 
-        /// <summary>Computed the selected MD5 hash for the given file. 
+        /// <summary>Computes the selected MD5 hash for the given byte array. 
         /// </summary>
         /// <param name="hashOption">MD5 algorithm to generate checksum. 
         /// Options are: "MD5" (using CryptoServiceProvider) or "MD5-CNG"</param>
         /// <param name="bytes">Byte representation of item to encode</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeMD5Algorithm(string hashOption, byte[] bytes)
+        private static string ComputeMD5Algorithm(HashOption hashOption, byte[] bytes)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "md5")
+            if (hashOption == HashOption.MD5)
             {
                 MD5 md5Checksum = MD5.Create();
                 computedHash = FormatHashChecksum(md5Checksum.ComputeHash(bytes));
             }//if
-            else if (hashOption == "md5-cng")
+            else if (hashOption == HashOption.MD5CNG)
             {
                 MD5Cng md5CNGChecksum = new MD5Cng();
                 computedHash = FormatHashChecksum(md5CNGChecksum.ComputeHash(bytes));
@@ -513,28 +523,27 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected SHA-1 hash for the given file. 
+        /// <summary>Computes the selected SHA-1 hash for the given byte array. 
         /// </summary>
         /// <param name="hashOption">SHA-1 algorithm to generate checksum. 
         /// Options are: "SHA-1" (using CryptoServiceProvider), "SHA-1-Managed", or "SHA-1-CNG"</param>
         /// <param name="bytes">Byte representation of item to encode</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeSHA1Algorithm(string hashOption, byte[] bytes)
+        private static string ComputeSHA1Algorithm(HashOption hashOption, byte[] bytes)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "sha-1")
+            if (hashOption == HashOption.SHA1)
             {
                 SHA1 sha1Checksum = SHA1.Create();
                 computedHash = FormatHashChecksum(sha1Checksum.ComputeHash(bytes));
             }//else if
-            else if (hashOption == "sha-1-managed")
+            else if (hashOption == HashOption.SHA1Managed)
             {
                 SHA1Managed sha1MngChecksum = new SHA1Managed();
                 computedHash = FormatHashChecksum(sha1MngChecksum.ComputeHash(bytes));
             }
-            else if (hashOption == "sha-1-cng")
+            else if (hashOption == HashOption.SHA1CNG)
             {
                 SHA1Cng sha1CNGChecksum = new SHA1Cng();
                 computedHash = FormatHashChecksum(sha1CNGChecksum.ComputeHash(bytes));
@@ -547,28 +556,27 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected SHA-256 hash for the given file. 
+        /// <summary>Computes the selected SHA-256 hash for the given byte array. 
         /// </summary>
         /// <param name="hashOption">SHA-256 algorithm to generate checksum. 
         /// Options are: "SHA-256" (using CryptoServiceProvider), "SHA-256-Managed", or "SHA-256-CNG"</param>
         /// <param name="bytes">Byte representation of item to encode</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeSHA256Algorithm(string hashOption, byte[] bytes)
+        private static string ComputeSHA256Algorithm(HashOption hashOption, byte[] bytes)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "sha-256")
+            if (hashOption == HashOption.SHA256)
             {
                 SHA256 sha256Checksum = SHA256.Create();
                 computedHash = FormatHashChecksum(sha256Checksum.ComputeHash(bytes));
             }//else if
-            else if (hashOption == "sha-256-managed")
+            else if (hashOption == HashOption.SHA256Managed)
             {
                 SHA256Managed sha256MngChecksum = new SHA256Managed();
                 computedHash = FormatHashChecksum(sha256MngChecksum.ComputeHash(bytes));
             }
-            else if (hashOption == "sha-256-cng")
+            else if (hashOption == HashOption.SHA256CNG)
             {
                 SHA256Cng sha256CNGChecksum = new SHA256Cng();
                 computedHash = FormatHashChecksum(sha256CNGChecksum.ComputeHash(bytes));
@@ -581,28 +589,27 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected SHA-384 hash for the given file. 
+        /// <summary>Computes the selected SHA-384 hash for the given byte array. 
         /// </summary>
         /// <param name="hashOption">SHA-384 algorithm to generate checksum. 
         /// Options are: "SHA-384" (using CryptoServiceProvider), "SHA-384-Managed", or "SHA-384-CNG"</param>
         /// <param name="bytes">Byte representation of item to encode</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeSHA384Algorithm(string hashOption, byte[] bytes)
+        private static string ComputeSHA384Algorithm(HashOption hashOption, byte[] bytes)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "sha-384")
+            if (hashOption == HashOption.SHA384)
             {
                 SHA384 sha384Checksum = SHA384.Create();
                 computedHash = FormatHashChecksum(sha384Checksum.ComputeHash(bytes)); 
             }//else if
-            else if (hashOption == "sha-384-managed")
+            else if (hashOption == HashOption.SHA384Managed)
             {
                 SHA384Managed sha384MngChecksum = new SHA384Managed();
                 computedHash = FormatHashChecksum(sha384MngChecksum.ComputeHash(bytes));
             }
-            else if (hashOption == "sha-384-cng")
+            else if (hashOption == HashOption.SHA384CNG)
             {
                 SHA384Cng sha384CNGChecksum = new SHA384Cng();
                 computedHash = FormatHashChecksum(sha384CNGChecksum.ComputeHash(bytes));
@@ -615,28 +622,27 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected SHA-512 hash for the given file. 
+        /// <summary>Computes the selected SHA-512 hash for the given byte array. 
         /// </summary>
         /// <param name="hashOption">SHA-512 algorithm to generate checksum. 
         /// Options are: "SHA-512" (using CryptoServiceProvider), "SHA-512-Managed", or "SHA-512-CNG"</param>
         /// <param name="bytes">Byte representation of item to encode</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeSHA512Algorithm(string hashOption, byte[] bytes)
+        private static string ComputeSHA512Algorithm(HashOption hashOption, byte[] bytes)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "sha-512")
+            if (hashOption == HashOption.SHA512)
             {
                 SHA512 sha512Checksum = SHA512.Create();
                 computedHash = FormatHashChecksum(sha512Checksum.ComputeHash(bytes)); 
             }//else if
-            else if (hashOption == "sha-512-managed")
+            else if (hashOption == HashOption.SHA512Managed)
             {
                 SHA512Managed sha512MngChecksum = new SHA512Managed();
                 computedHash = FormatHashChecksum(sha512MngChecksum.ComputeHash(bytes));
             }
-            else if (hashOption == "sha-512-cng")
+            else if (hashOption == HashOption.SHA512CNG)
             {
                 SHA512Cng sha512CNGChecksum = new SHA512Cng();
                 computedHash = FormatHashChecksum(sha512CNGChecksum.ComputeHash(bytes));
@@ -649,23 +655,22 @@ namespace ChecksumVerifier
             return computedHash;
         }
 
-        /// <summary>Computed the selected RIPEMD160 hash for the given file. 
+        /// <summary>Computes the selected RIPEMD160 hash for the given byte array. 
         /// </summary>
         /// <param name="hashOption">RIPEMD160 algorithm to generate checksum. 
         /// Options are: "RIPEMD160" (using CryptoServiceProvider) or "RIPEMD160-Managed"</param>
         /// <param name="bytes">Byte representation of item to encode</param>
         /// <returns>Computed hash</returns>
-        private static string ComputeRIPEMD160Algorithm(string hashOption, byte[] bytes)
+        private static string ComputeRIPEMD160Algorithm(HashOption hashOption, byte[] bytes)
         {
             string computedHash = String.Empty;
-            hashOption = hashOption.ToLower();
 
-            if (hashOption == "ripemd160")
+            if (hashOption == HashOption.RIPEMD160)
             {
                 RIPEMD160 ripemd160Checksum = RIPEMD160.Create();
                 computedHash = FormatHashChecksum(ripemd160Checksum.ComputeHash(bytes));
             }//else if
-            else if (hashOption == "ripemd160-managed")
+            else if (hashOption == HashOption.RIPEMD160Managed)
             {
                 RIPEMD160Managed ripemd160MgChecksum = new RIPEMD160Managed();
                 computedHash = FormatHashChecksum(ripemd160MgChecksum.ComputeHash(bytes));
@@ -675,6 +680,39 @@ namespace ChecksumVerifier
                 computedHash = "Not a valid algorithm option!";
             }//else
 
+            return computedHash;
+        }
+
+        /// <summary> Computes the selected CRC16 hash for the given byte array. 
+        /// </summary>
+        /// <param name="bytes">Byte representation of item to encode</param>
+        /// <returns>Computed hash</returns>
+        private static string ComputeCrc16Algorithm(byte[] bytes)
+        {
+            var computedHash = String.Empty;
+            CRC16 crc16Checksum = new CRC16();
+
+            foreach (byte b in crc16Checksum.ComputeHash(bytes))
+            {
+                computedHash = computedHash.Insert(0, b.ToString("x2").ToLower());
+            }//foreach
+            //throws arithmetic overflow when choosing crc16
+            return computedHash;
+        }
+
+        /// <summary> Computes the selected CRC32 hash for the given byte array. 
+        /// </summary>
+        /// <param name="bytes">Byte representation of item to encode</param>
+        /// <returns>Computed hash</returns>
+        private static string ComputeCrc32Algorithm(byte[] bytes)
+        {
+            var computedHash = String.Empty;
+            CRC32 crc32Checksum = new CRC32();
+
+            foreach (byte b in crc32Checksum.ComputeHash(bytes))
+            {
+                computedHash = computedHash.Insert(0, b.ToString("x2").ToLower());
+            }//foreach
             return computedHash;
         }
         #endregion

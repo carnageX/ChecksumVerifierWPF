@@ -29,18 +29,20 @@ namespace ChecksumVerifier
         #region Main Methods
         public MainViewModel()
         {
-            this.Algorithms = new List<string>() { "MD5", "MD5-CNG", "SHA-1", "SHA-1-Managed", "SHA-1-CNG", 
-                "SHA-256", "SHA-256-Managed", "SHA-256-CNG", "SHA-384", "SHA-384-Managed", "SHA-384-CNG", 
-                "SHA-512", "SHA-512-Managed", "SHA-512-CNG", "RIPEMD160", "RIPEMD160-Managed", "CRC16", "CRC32" };
+            this.Algorithms = new List<string>() { HashOption.MD5.Description(), HashOption.MD5CNG.Description(), HashOption.SHA1.Description(),
+                HashOption.SHA1Managed.Description(), HashOption.SHA1CNG.Description(), HashOption.SHA256.Description(), HashOption.SHA256Managed.Description(), 
+                HashOption.SHA256CNG.Description(), HashOption.SHA384.Description(), HashOption.SHA384Managed.Description(), HashOption.SHA384CNG.Description(), 
+                HashOption.SHA512.Description(), HashOption.SHA512Managed.Description(), HashOption.SHA512CNG.Description(), HashOption.RIPEMD160.Description(),
+                HashOption.RIPEMD160Managed.Description(), HashOption.CRC16.Description(), HashOption.CRC32.Description() };
             this.SelectedAlgorithms = new ObservableCollection<string>();
             this.SelectedAlgorithms.Add(this.Algorithms[0]);
             this.EncodingTypes = new List<EncodingType>() { 
-                new EncodingType("Default (System)", Encoding.Default), new EncodingType("ASCII", Encoding.ASCII),
-                new EncodingType("Big Endian Unicode", Encoding.BigEndianUnicode), new EncodingType("Unicode", Encoding.Unicode), 
-                new EncodingType("UTF7", Encoding.UTF7), new EncodingType("UTF8", Encoding.UTF8), 
-                new EncodingType("UTF32", Encoding.UTF32)
+                new EncodingType(EncType.Default, Encoding.Default), new EncodingType(EncType.ASCII, Encoding.ASCII),
+                new EncodingType(EncType.BigEndianUnicode, Encoding.BigEndianUnicode), new EncodingType(EncType.Unicode, Encoding.Unicode), 
+                new EncodingType(EncType.UTF7, Encoding.UTF7), new EncodingType(EncType.UTF8, Encoding.UTF8), 
+                new EncodingType(EncType.UTF32, Encoding.UTF32)
             };
-            this.SelectedEncodingType = new EncodingType("Default (System)", Encoding.Default);
+            this.SelectedEncodingType = new EncodingType(EncType.Default, Encoding.Default);
             this.LblResult = "Ready...";
             this.StatusImage = imageReady;
             this.swElapsedTime = new Stopwatch();
@@ -350,7 +352,7 @@ namespace ChecksumVerifier
         {
             foreach(string a in this.SelectedAlgorithms)
             {
-                this.SF_CalculatedHashList.Add(ChecksumVerifierLogic.GetHash(filepath, a));
+                this.SF_CalculatedHashList.Add(ChecksumVerifierLogic.GetHash(filepath, a.GetHashOptionValue()));
                 SF_BWProgress += (int)(((float)1 / (float)this.SelectedAlgorithms.Count) * 100);
                 this.SF_BwWorker.ReportProgress(SF_BWProgress);
             }
@@ -607,7 +609,7 @@ namespace ChecksumVerifier
             {
                 foreach (string a in this.SelectedAlgorithms)
                 {
-                    string hash = ChecksumVerifierLogic.GetHash(f, a);
+                    string hash = ChecksumVerifierLogic.GetHash(f, a.GetHashOptionValue());
                     //this.MF_CalculatedHashList.Add(hash);
 
                     if (!String.IsNullOrWhiteSpace(this.MF_TxtUserHash))
@@ -878,7 +880,7 @@ namespace ChecksumVerifier
         {
             foreach (string a in this.SelectedAlgorithms)
             {
-                this.TS_CalculatedHashList.Add(ChecksumVerifierLogic.GetHash(this.TS_TxtUserText, a, this.SelectedEncodingType.Type));
+                this.TS_CalculatedHashList.Add(ChecksumVerifierLogic.GetHash(this.TS_TxtUserText, a.GetHashOptionValue(), this.SelectedEncodingType.Type));
                 TS_BWProgress += (int)(((float)1 / (float)this.SelectedAlgorithms.Count) * 100);
                 this.TS_BwWorker.ReportProgress(TS_BWProgress);
             }
