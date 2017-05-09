@@ -1,6 +1,5 @@
 
 # Copyright
-
 ```
 Checksum Verifier Utility
 Copyright 2013 Chase (carnageX) <carnagex@outlook.com>
@@ -10,7 +9,6 @@ as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
 ```
 
 # Warranty
-====================================================================
 ```
 /* This program is free software. It comes without any warranty, to
      * the extent permitted by applicable law. You can redistribute it
@@ -59,7 +57,6 @@ To use Text String Mode:
 4. Click Generate/Compare button
 
 # License Content
-
 ```
 DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE 
                     Version 2, December 2004 
@@ -77,7 +74,6 @@ DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 ```
 
 # Changelog
-
 ```
 Version 4.3.1
   Replaced statusbar status label with status light to indicate state (Ready/Running/Finished/Error)
