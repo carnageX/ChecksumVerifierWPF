@@ -1,6 +1,6 @@
-====================================================================
-Copyright
-====================================================================
+
+# Copyright
+
 ```
 Checksum Verifier Utility
 Copyright 2013 Chase (carnageX) <carnagex@outlook.com>
@@ -8,8 +8,8 @@ This work is free. You can redistribute it and/or modify it under the
 terms of the Do What The Fuck You Want To Public License, Version 2,
 as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
 ```
-====================================================================
-Warranty
+
+# Warranty
 ====================================================================
 ```
 /* This program is free software. It comes without any warranty, to
@@ -18,9 +18,9 @@ Warranty
      * To Public License, Version 2, as published by Sam Hocevar. See
      * http://www.wtfpl.net/ for more details. */
 ```
-====================================================================
-Details & Usage
-====================================================================
+
+# Details & Usage
+
 Built on .NET Framework 4.5
 
 Supported Checksum Algorithms:
@@ -44,29 +44,25 @@ Supports 3 modes:
 You can generate hashes for either mode, or compare to a checksum provided to the program by the user. 
 
 To use (single or Multiple File modes):
-```
-	1. Select desired algorithm(s) (default is MD5 - assumed this would be most used)
-	2. Select a tab (mode) to use
-	3. (Optional) If verifying a file's checksum, enter it in the "Checksum" field. 
-	4. Browse for a file to generate
-	5. Click the Compare button 
-		Note: for large files it may take some time... be patient!
-	6. The result will appear in the appropriate section in the tab's section.
-		a. For Single File mode: the checksum generated for the file will appear in the "File Checksum" field.  If comparing to an entered Checksum, the result will display below the File Checksum field, noting if it is a match or mismatch.  The checksum generated from the file will also turn green for a match, and red for a mismatch. 
-	
-		b. For Multiple Files mode: The generated checksum(s) will appear in the list to the right of the Browse and Compare buttons for each file.  It will also note if there was a match or mismatch to the given Checksum (if one was given). 
-```
+1. Select desired algorithm(s) (default is MD5 - assumed this would be most used)
+2. Select a tab (mode) to use
+3. (Optional) If verifying a file's checksum, enter it in the "Checksum" field. 
+4. Browse for a file to generate
+5. Click the Compare button 
+  - **Note:** for large files it may take some time... be patient!
+6. The result will appear in the appropriate section in the tab's section.
+  - _For Single File mode:_ the checksum generated for the file will appear in the "File Checksum" field.  If comparing to an entered Checksum, the result will display below the File Checksum field, noting if it is a match or mismatch.  The checksum generated from the file will also turn green for a match, and red for a mismatch. 
+  - _For Multiple Files mode:_ The generated checksum(s) will appear in the list to the right of the Browse and Compare buttons for each file.  It will also note if there was a match or mismatch to the given Checksum (if one was given). 
+
 To use Text String Mode: 
-```
-  1. Select desired algorithm(s)
-  2. Input a text string in the "Input String" box
-    a. Input a checksum to compare against if desired
-  3. Select an encoding method
-  4. Click Generate/Compare button
-```
-====================================================================		
-License	Content
-====================================================================
+1. Select desired algorithm(s)
+2. Input a text string in the "Input String" box
+  - Input a checksum to compare against if desired
+3. Select an encoding method
+4. Click Generate/Compare button
+
+# License Content
+
 ```
 DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE 
                     Version 2, December 2004 
@@ -82,9 +78,9 @@ DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 
   0. You just DO WHAT THE FUCK YOU WANT TO.
 ```
-====================================================================		
-Changelog
-====================================================================
+
+# Changelog
+
 ```
 Version 4.3.1
   Replaced statusbar status label with status light to indicate state (Ready/Running/Finished/Error)
