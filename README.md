@@ -24,22 +24,19 @@ as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
 Built on .NET Framework 4.5
 
 Supported Checksum Algorithms:
-```
-	* MD5, MD5-CNG
-	* SHA-1, SHA-1 Managed, SHA-1 CNG
-	* SHA-256, SHA-256 Managed, SHA-256 CNG
-	* SHA-384, SHA-384 Managed, SHA-384 CNG
-	* SHA-512, SHA-512 Managed, SHA-512 CNG
-	* RIPEMD160, RIPEMD160 Managed
-	* CRC16
-	* CRC32
-```
+* MD5, MD5-CNG
+* SHA-1, SHA-1 Managed, SHA-1 CNG
+* SHA-256, SHA-256 Managed, SHA-256 CNG
+* SHA-384, SHA-384 Managed, SHA-384 CNG
+* SHA-512, SHA-512 Managed, SHA-512 CNG
+* RIPEMD160, RIPEMD160 Managed
+* CRC16
+* CRC32
+
 Supports 3 modes: 
-```
-	* Single File
-	* Multiple File
-	* Text string
-```
+* Single File
+* Multiple File
+* Text string
 
 You can generate hashes for either mode, or compare to a checksum provided to the program by the user. 
 
